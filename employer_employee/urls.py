@@ -28,4 +28,5 @@ urlpatterns = [
     #User API
     path('user/',include('account.urls')),
     path('job/',include('job.urls')),
+    
 ]
