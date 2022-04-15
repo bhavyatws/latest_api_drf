@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'account',
     'job',
-    'JobAssigned',
+    'job_assigned',
     'rest_framework_simplejwt',
 ]
 

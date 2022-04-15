@@ -1,10 +1,16 @@
-from pyexpat import model
+
 from rest_framework import serializers
-from JobAssigned.models import JobAssigned
+from job_assigned.models import JobAssigned
 from job.serializers import JobSerializer
 from account.serializers import UserSerializer
 
 class JobAssignedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=JobAssigned
+        fields=['job','assigned_to']
+       
+
+class JobAssignedListSerializer(serializers.ModelSerializer):
     job=JobSerializer()
     assigned_to=UserSerializer()
     assigned_by=UserSerializer()

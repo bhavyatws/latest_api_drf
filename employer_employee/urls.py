@@ -28,6 +28,6 @@ urlpatterns = [
     #User API
     path('user/',include('account.urls')),
     path('job/',include('job.urls')),
-    path('job-assigned/',include('JobAssigned.urls')),
+    path('job-assigned/',include('job_assigned.urls')),
     
 ]

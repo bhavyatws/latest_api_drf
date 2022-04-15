@@ -1,4 +1,4 @@
-from operator import mod
+
 from django.db import models
 from account.models import User
 from job.models import Job
