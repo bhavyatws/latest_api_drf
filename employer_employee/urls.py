@@ -26,8 +26,9 @@ urlpatterns = [
     path("api-token/",jwt_views.TokenObtainPairView.as_view(),name ='token_obtain_pair'),
     path('api/token/refresh/',jwt_views.TokenRefreshView.as_view(),name ='token_refresh'),
     #User API
-    path('user/',include('account.urls')),
+    path('account/',include('account.urls')),
     path('job/',include('job.urls')),
     path('job-assigned/',include('job_assigned.urls')),
+    path('notes/',include('notes.urls')),
     
 ]

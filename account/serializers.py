@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from account.models import User
+from account.models import User,Level,UserUploadedCertificate,Profile,Certification
 from django.forms import ValidationError
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,3 +29,29 @@ class UserSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise ValidationError('Two passwords must match')
         return data
+
+class LevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Level
+        fields=['name',]
+
+
+class CertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Certification
+        fields='__all__'
+        
+
+class UserUploadedCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=UserUploadedCertificate
+        fields='__all__'
+        extra_kwargs={'user':{'read_only':True}}
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Profile
+        fields='__all__'
+        extra_kwargs={'user':{'read_only':True}}
+
