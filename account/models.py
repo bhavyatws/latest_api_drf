@@ -78,6 +78,14 @@ class Profile(models.Model):
             img.thumbnail(output_size)
             img.save(self.profile_image.path)
             print("Resized")
+    
+class FAQ(models.Model):
+    question=models.CharField(max_length=250,default='')
+    answer=models.TextField(default='')
+    timestamp=models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f'{self.question}'
   
 
     

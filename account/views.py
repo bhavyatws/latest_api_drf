@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import permissions
-from account.serializers import UserSerializer,LevelSerializer,CertificateSerializer,ProfileSerializer, UserUploadedCertificateSerializer,ProfileListSerializer
-from account.models import Level, User,Certification,Profile,UserUploadedCertificate
+from account.serializers import UserSerializer,LevelSerializer,CertificateSerializer,ProfileSerializer, UserUploadedCertificateSerializer,ProfileListSerializer,FAQSerializer
+from account.models import Level, User,Certification,Profile,UserUploadedCertificate,FAQ
 from job.permissions import OwnerOnly
 from rest_framework import generics
 
@@ -40,7 +40,7 @@ class UserUploadedCertificateview(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class Profileview(generics.RetrieveUpdateDestroyAPIView):
+class Profileview(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
     
@@ -53,8 +53,10 @@ class Profileview(generics.RetrieveUpdateDestroyAPIView):
     permission_classes=[permissions.IsAuthenticated,OwnerOnly]
 
 
-    def perform_update(self, serializer):
-        serializer.save(user=self.request.user)
+
+class FAQView(generics.ListAPIView):
+    queryset=FAQ.objects.all()
+    serializer_class=FAQSerializer
 
 
 

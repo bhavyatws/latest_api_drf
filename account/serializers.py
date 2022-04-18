@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from account.models import User,Level,UserUploadedCertificate,Profile,Certification
+from account.models import FAQ, User,Level,UserUploadedCertificate,Profile,Certification
 from django.forms import ValidationError
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,10 +33,11 @@ class UserSerializer(serializers.ModelSerializer):
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model=Level
-        fields=['name',]
+        fields=['id','name',]
 
 
 class CertificateSerializer(serializers.ModelSerializer):
+    level=LevelSerializer()
     class Meta:
         model=Certification
         fields='__all__'
@@ -60,6 +61,11 @@ class ProfileListSerializer(serializers.ModelSerializer):
     user=UserSerializer()
     class Meta:
         model=Profile
+        fields='__all__'
+
+class FAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FAQ
         fields='__all__'
        
 
