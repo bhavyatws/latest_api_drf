@@ -7,3 +7,4 @@ router.register('',JobView,basename="job")
 urlpatterns = [
     path('',include(router.urls)),
 ]
+
