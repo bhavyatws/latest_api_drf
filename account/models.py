@@ -1,9 +1,11 @@
 from pyexpat import model
 from tabnanny import verbose
+from tokenize import blank_re
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 from .managers import CustomUserManager
 
@@ -55,12 +57,28 @@ class UserUploadedCertificate(models.Model):
 
 class Profile(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
-    profile_img=models.ImageField(upload_to="Profile/")
-    designation=models.CharField(max_length=100,default="")
-    phone_number=models.CharField(max_length=20,default="")
-    dob=models.DateField(blank=True)
-    allergies=models.CharField(max_length=100,default="")
-    medical_issues=models.CharField(max_length=100,default="")
+    profile_image=models.ImageField(upload_to="Profile/",blank=True)
+    designation=models.CharField(max_length=100,default="",blank=True)
+    phone_number=models.CharField(max_length=20,default="",blank=True)
+    dob=models.DateField(blank=True,null=True)
+    allergies=models.CharField(max_length=100,default="",blank=True)
+    medical_issues=models.CharField(max_length=100,default="",blank=True)
 
     def __str__(self):
         return self.user.email
+    # resizing uploaded image after uploaded
+    def save(self):
+        super(Profile,self).save()
+
+        img = Image.open(self.profile_image.path)
+        print(img)
+
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.profile_image.path)
+            print("Resized")
+  
+
+    
+    

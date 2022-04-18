@@ -50,8 +50,16 @@ class UserUploadedCertificateSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model=Profile
         fields='__all__'
         extra_kwargs={'user':{'read_only':True}}
+
+class ProfileListSerializer(serializers.ModelSerializer):
+    user=UserSerializer()
+    class Meta:
+        model=Profile
+        fields='__all__'
+       
 
