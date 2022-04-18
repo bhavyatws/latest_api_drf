@@ -6,7 +6,7 @@ from rest_framework import serializers
 class NotesSerializer(serializers.ModelSerializer):
     class Meta:
         model=Notes
-        fields=['job','notes','user']
+        fields=['job','notes','user_associated']
         extra_kwargs={'user':{'read_only':True}}
 
 class NotesListSerializer(serializers.ModelSerializer):

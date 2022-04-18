@@ -44,7 +44,7 @@ class Certification(models.Model):
         return self.name
 
 class UserUploadedCertificate(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cert_image=models.ImageField(upload_to="Certification/")
     cert_name=models.ForeignKey(Certification,on_delete=models.CASCADE)
     timestamp=models.DateTimeField(auto_now=True)
@@ -56,7 +56,7 @@ class UserUploadedCertificate(models.Model):
         return f'{self.user.email}'
 
 class Profile(models.Model):
-    user=models.OneToOneField(User,on_delete=models.CASCADE)
+    user_associated=models.OneToOneField(User,on_delete=models.CASCADE,null=True)
     profile_image=models.ImageField(upload_to="Profile/",blank=True)
     designation=models.CharField(max_length=100,default="",blank=True)
     phone_number=models.CharField(max_length=20,default="",blank=True)
@@ -65,19 +65,19 @@ class Profile(models.Model):
     medical_issues=models.CharField(max_length=100,default="",blank=True)
 
     def __str__(self):
-        return self.user.email
+        return self.user_associated.email
     # resizing uploaded image after uploaded
-    def save(self):
-        super(Profile,self).save()
+    # def save(self,force_insert=None):
+    #     super(Profile,self).save(*args, **kwargs)
 
-        img = Image.open(self.profile_image.path)
-        print(img)
+    #     img = Image.open(self.profile_image.path)
+    #     print(img)
 
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
-            img.thumbnail(output_size)
-            img.save(self.profile_image.path)
-            print("Resized")
+    #     if img.height > 300 or img.width > 300:
+    #         output_size = (300, 300)
+    #         img.thumbnail(output_size)
+    #         img.save(self.profile_image.path)
+    #         print("Resized")
     
 class FAQ(models.Model):
     question=models.CharField(max_length=250,default='')

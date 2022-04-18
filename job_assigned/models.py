@@ -7,7 +7,7 @@ from job.models import Job
 class JobAssigned(models.Model):
     assigned_by=models.ForeignKey(User,on_delete=models.CASCADE)
     assigned_to=models.ForeignKey(User,on_delete=models.CASCADE,related_name="assigned_to")
-    job=models.ForeignKey(Job,on_delete=models.CASCADE)
+    job=models.ForeignKey(Job,on_delete=models.CASCADE,null=True)
     timestamp=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

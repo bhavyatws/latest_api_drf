@@ -25,5 +25,5 @@ class EmployerOnlyorReadOnly(permissions.BasePermission):
 class OwnerOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         
-        return obj.user==request.user
+        return obj.user_associated==request.user
        

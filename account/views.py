@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import permissions
+from yaml import serialize
 from account.serializers import UserSerializer,LevelSerializer,CertificateSerializer,ProfileSerializer, UserUploadedCertificateSerializer,ProfileListSerializer,FAQSerializer,MyTokenObtainPairSerializer
 from account.models import Level, User,Certification,Profile,UserUploadedCertificate,FAQ
 from job.permissions import OwnerOnly
@@ -41,16 +42,17 @@ class UserUploadedCertificateview(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class Profileview(generics.RetrieveUpdateAPIView):
+class ProfileListView(generics.ListAPIView):
     def get_queryset(self):
-        return Profile.objects.filter(user=self.request.user)
-    
-    def get_serializer_class(self):
+        return Profile.objects.filter(user_associated=self.request.user)
+    serializer_class=ProfileListSerializer
+    permission_classes=[permissions.IsAuthenticated,OwnerOnly]
 
-        if self.request.method == 'GET':
-            return ProfileListSerializer
-        return ProfileSerializer
-    
+class Profileview(generics.UpdateAPIView):
+    def get_queryset(self):
+        pk=self.kwargs.get('pk')
+        return Profile.objects.filter(pk=pk)
+    serializer_class=ProfileSerializer
     permission_classes=[permissions.IsAuthenticated,OwnerOnly]
 
 

@@ -2,16 +2,19 @@
 from rest_framework import serializers
 from account.models import FAQ, User,Level,UserUploadedCertificate,Profile,Certification
 from django.forms import ValidationError
+#Customizing Token Response with Role also
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(label='Confirm Password', write_only=True)
     class Meta:
 
         model=User
-        fields=['email','role','password','password2']
+        fields=['id','email','role','password','password2']
         extra_kwargs={
             'password':{'write_only':True},
             'password2':{'write_only':True},
+            'id':{'read_only':True},
         }
 
     def validate(self, data):
@@ -55,10 +58,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=Profile
         fields='__all__'
-        extra_kwargs={'user':{'read_only':True}}
+        
 
 class ProfileListSerializer(serializers.ModelSerializer):
-    user=UserSerializer()
+    user_associated=UserSerializer()
     class Meta:
         model=Profile
         fields='__all__'
@@ -68,8 +71,7 @@ class FAQSerializer(serializers.ModelSerializer):
         model=FAQ
         fields='__all__'
     
-#Customizing Token Response with Role also
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
