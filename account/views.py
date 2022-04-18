@@ -3,10 +3,11 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import permissions
-from account.serializers import UserSerializer,LevelSerializer,CertificateSerializer,ProfileSerializer, UserUploadedCertificateSerializer,ProfileListSerializer,FAQSerializer
+from account.serializers import UserSerializer,LevelSerializer,CertificateSerializer,ProfileSerializer, UserUploadedCertificateSerializer,ProfileListSerializer,FAQSerializer,MyTokenObtainPairSerializer
 from account.models import Level, User,Certification,Profile,UserUploadedCertificate,FAQ
 from job.permissions import OwnerOnly
 from rest_framework import generics
+from rest_framework_simplejwt.views import TokenObtainPairView#customizing Token
 
 # Create your views here.
 
@@ -58,6 +59,9 @@ class FAQView(generics.ListAPIView):
     queryset=FAQ.objects.all()
     serializer_class=FAQSerializer
 
+#Customizing Token Response
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
 

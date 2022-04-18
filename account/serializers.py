@@ -67,5 +67,33 @@ class FAQSerializer(serializers.ModelSerializer):
     class Meta:
         model=FAQ
         fields='__all__'
-       
+    
+#Customizing Token Response with Role also
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    #on decoding token ,we get role also
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['Role'] = user.role
+        # Add more custom fields from your custom user model, If you have a
+        # custom user model.
+        # ...
+
+        return token
+    #to return role in response,just overrided validate
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        # Add extra responses here
+        data['Role'] = self.user.role
+        
+        return data
 

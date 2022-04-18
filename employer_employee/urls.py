@@ -19,6 +19,7 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_simplejwt import views as jwt_views
+from account.views import MyTokenObtainPairView#Customized TokenObtainer
 
 
 
@@ -26,7 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     #Simple JWT Route
     path("api-auth/", include("rest_framework.urls")),  
-    path("api-token/",jwt_views.TokenObtainPairView.as_view(),name ='token_obtain_pair'),
+    path("api-token/",MyTokenObtainPairView.as_view(),name ='token_obtain_pair'),
     path('api/token/refresh/',jwt_views.TokenRefreshView.as_view(),name ='token_refresh'),
     #User API
     path('account/',include('account.urls')),
