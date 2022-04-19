@@ -9,7 +9,7 @@ from job.permissions import EmployerOnlyorReadOnly,OwnerOnly
 class JobView(viewsets.ModelViewSet):
     queryset=Job.objects.all()
     serializer_class=JobSerializer
-    permission_classes=[permissions.IsAuthenticated,EmployerOnlyorReadOnly,OwnerOnly,]
+    permission_classes=[permissions.IsAuthenticated,OwnerOnly,]
     
     def perform_create(self, serializer):
         serializer.save(user_associated=self.request.user)
