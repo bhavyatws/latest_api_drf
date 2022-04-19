@@ -1,5 +1,7 @@
 import os
 from employer_employee.settings.common import *
+from dotenv import load_dotenv
+load_dotenv() 
 DEBUG = False
 
 SECRET_KEY = os.environ['SECRET_KEY']
