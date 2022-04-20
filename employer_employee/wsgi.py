@@ -21,6 +21,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'employer_employee.settings.deve
 
 application = get_wsgi_application()
 # application = Cling(get_wsgi_application())
-application = WhiteNoise(application,root="staticfiles")
-application.add_files("staticfiles", prefix="more-files/")
+application = WhiteNoise(application)
+
 
