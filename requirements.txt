@@ -47,3 +47,4 @@ virtualenv-clone==0.5.7
 whitenoise==6.0.0
 zipp==3.7.0
 dj-static
+djangorestframework
