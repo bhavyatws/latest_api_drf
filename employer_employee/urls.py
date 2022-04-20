@@ -37,7 +37,7 @@ urlpatterns = [
     path('job-assigned/',include('job_assigned.urls')),
     path('notes/',include('notes.urls')),
     
-]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-#settings.MEDIA_URL,document_root=settings.MEDIA_ROOT
+]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
 
 
