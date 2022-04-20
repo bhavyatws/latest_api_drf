@@ -37,11 +37,7 @@ urlpatterns = [
     path('job-assigned/',include('job_assigned.urls')),
     path('notes/',include('notes.urls')),
     
-]+static(settings.MEDIA_URL,settings.STATIC_URL,document_root=settings.MEDIA_ROOT, document_root=settings.STATIC_ROOT)
+]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+#settings.MEDIA_URL,document_root=settings.MEDIA_ROOT
 
-# if DEBUG404:
-#     urlpatterns += urlpatterns(
-#     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
-#     {'document_root': os.path.join(os.path.dirname(__file__), 'static')} ),
-#     )
 
