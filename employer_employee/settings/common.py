@@ -155,10 +155,10 @@ django_heroku.settings(locals())
 
 
 #  Add configuration for static files storage using whitenoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 #Above STATICFILES_STORAGE does not allow to open admin page
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 #Updating Database Configuration
 prod_db  =  dj_database_url.config(conn_max_age=500)
