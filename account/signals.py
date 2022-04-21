@@ -19,17 +19,3 @@ def save_user_profile(sender,instance,**kwargs):
         Profile.objects.create(user_associated=instance)
 
 
-@receiver(pre_save,sender=Profile)
-def delete_old_profileimg(sender,instance,**kwargs):
-    #on creation,signal won't be created
-    if instance._state.adding and not instance.pk:
-        return False
-    try:
-        old_image=sender.objects.get(pk=instance.pk).profile_image
-    except sender.DoesNotExist:
-        return False
-    #comparing old file with new file
-    image = instance.profile_image
-    if not old_image == image:
-        if os.path.isfile(old_image.path):
-            os.remove(old_image.path)

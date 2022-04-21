@@ -12,7 +12,7 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 # from dj_static import Cling
-from whitenoise import WhiteNoise
+# from whitenoise import WhiteNoise
 
 
 
@@ -21,6 +21,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'employer_employee.settings.deve
 
 application = get_wsgi_application()
 # application = Cling(get_wsgi_application())
-application = WhiteNoise(application)
+# application = WhiteNoise(application)
 
 

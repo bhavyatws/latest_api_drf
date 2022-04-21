@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'account',
+    'django_cleanup.apps.CleanupConfig',
     'job',
     'job_assigned',
     'notes',
@@ -201,3 +202,5 @@ LOGGING = {
 
 #It give exact error on heroku logs
 DEBUG_PROPAGATE_EXCEPTIONS = True
+
+
