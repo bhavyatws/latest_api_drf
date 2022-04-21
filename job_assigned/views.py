@@ -2,6 +2,7 @@ from django import views
 from django.shortcuts import render
 from rest_framework import permissions
 from rest_framework import viewsets
+from rest_framework import generics
 from job_assigned.models import JobAssigned
 from job_assigned.serializers import JobAssignedSerializer,JobAssignedListSerializer
 from job.permissions import EmployerOnlyorReadOnly
@@ -36,3 +37,10 @@ class Job_assigned_view(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         print(self.request.user)
         serializer.save(assigned_by=self.request.user)
+
+class ListTaskAssignedView(generics.ListAPIView):
+    def get_queryset(self):
+        print(self.request.user)
+        return JobAssigned.objects.filter(assigned_to=self.request.user)
+    serializer_class=JobAssignedListSerializer
+    # permission_classes=[permissions.IsAuthenticated]
