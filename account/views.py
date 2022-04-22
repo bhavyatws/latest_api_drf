@@ -18,6 +18,7 @@ class UserView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         instance=serializer.save()
+        print(instance)
         instance.set_password(instance.password)
         instance.save()
 

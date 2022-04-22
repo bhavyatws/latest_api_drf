@@ -56,7 +56,7 @@ class UserUploadedCertificate(models.Model):
         return f'{self.user.email}'
 
 class Profile(models.Model):
-    user_associated=models.OneToOneField(User,on_delete=models.CASCADE,null=True)
+    user_associated=models.OneToOneField(User,on_delete=models.CASCADE,null=True,related_name='profile')
     profile_image=models.ImageField(upload_to="Profile/", blank=True, null=True)
     designation=models.CharField(max_length=100,default="",blank=True)
     phone_number=models.CharField(max_length=20,default="",blank=True)

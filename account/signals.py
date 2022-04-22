@@ -9,12 +9,13 @@ from django.core.exceptions import ObjectDoesNotExist
 def create_user_profile(sender,instance,created,**kwargs):
     if created:
         Profile.objects.create(user_associated=instance)
-
+        print("profile created")
 #while updating user
 @receiver(post_save,sender=User)
 def save_user_profile(sender,instance,**kwargs):
     try:
         instance.profile.save()
+        print("profile saved")
     except ObjectDoesNotExist:
         Profile.objects.create(user_associated=instance)
 

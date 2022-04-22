@@ -5,6 +5,7 @@ router=DefaultRouter()
 router.register('',Job_assigned_view,basename="job")
 
 urlpatterns = [
-    # path('',include(router.urls)),
-    path('assigned-job-list/',ListTaskAssignedView.as_view())
+    
+    path('assigned-job-list/',ListTaskAssignedView.as_view()),
+    path('',include(router.urls)),
 ]
