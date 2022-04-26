@@ -27,6 +27,8 @@ from account.views import MyTokenObtainPairView#Customized TokenObtainer
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    #django debug toolbar
+    path('__debug__/', include('debug_toolbar.urls')),
     #Simple JWT Route
     path("api-auth/", include("rest_framework.urls")),  
     path("api-token/",MyTokenObtainPairView.as_view(),name ='token_obtain_pair'),
