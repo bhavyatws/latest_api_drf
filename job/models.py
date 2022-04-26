@@ -15,6 +15,7 @@ class Job(models.Model):
     description=models.TextField()
     job_status=models.CharField(choices=job_status_choice,max_length=30)
     user_associated=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    # assigned_to=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name="assign_job")
     job_deadline=models.DateField()
     timestamp=models.DateTimeField(auto_now_add=True)
 

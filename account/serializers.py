@@ -1,40 +1,26 @@
-from rest_framework.response import Response
+
 from rest_framework import serializers
 from account.models import FAQ, User,Level,UserUploadedCertificate,Profile,Certification
 from django.forms import ValidationError
 #Customizing Token Response with Role also
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from job_assigned import specific_job_serializer
-from job_assigned.models import JobAssigned
 
 
 
-class ProfileListSerializer(serializers.ModelSerializer):
-    assigned_job=serializers.SerializerMethodField('get_all_assign_job')
-    class Meta:
-        model=Profile
-        fields=('assigned_job',)
-    def get_all_assign_job(self,obj):
-      
-        job_list=[]
-        job_assigneds=JobAssigned.objects.filter(assigned_to=obj.user_associated)
-        
-        for job_assigned in job_assigneds:
-            if job_assigned.assigned_to==obj.user_associated:
 
-                job_list.append(job_assigned.job)
-            
-        return specific_job_serializer.UserAssignedJobSerializer(job_list,many=True).data
+
+
+    
         
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(label='Confirm Password', write_only=True)
-    profile=ProfileListSerializer(read_only=True)
+   
    
     class Meta:
 
         model=User
-        fields=['id','email','role','profile','password','password2']
+        fields=['id','email','role','password','password2']
         extra_kwargs={
             'password':{'write_only':True},
             'password2':{'write_only':True},
@@ -65,7 +51,12 @@ class UserSerializer(serializers.ModelSerializer):
     #         if job_assigned.assigned_to==self.request.user:
     #             job_list.append(job_assigned.job)
     #         return UserAssignedJobSerializer(job_list,many=True).data
-       
+    
+class ProfileListSerializer(serializers.ModelSerializer):
+    user_associated=UserSerializer()
+    class Meta:
+        model=Profile
+        fields='__all__'
 
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:

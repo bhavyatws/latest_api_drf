@@ -13,4 +13,8 @@ class Notes(models.Model):
 
     def __str__(self):
        return f'{self.notes} By {self.user_associated.email}'
+    
+    # @property
+    # def notes_count(self):
+    #     p
 
