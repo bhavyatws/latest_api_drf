@@ -12,3 +12,14 @@ class JobAssigned(models.Model):
 
     def __str__(self):
         return f'{self.job.job_name} to {self.assigned_to.email}'
+
+class Working_Duration(models.Model):
+    assigned_job=models.ForeignKey(JobAssigned,on_delete=models.CASCADE,related_name="assigned_job")
+    start_time=models.DateTimeField(null=True,blank=True)
+    end_time=models.DateTimeField(null=True,blank=True)
+    duration=models.TimeField(null=True,blank=True)
+
+    def __str__(self):
+        return self.assigned_job.job.job_name
+    
+

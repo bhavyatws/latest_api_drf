@@ -23,7 +23,7 @@ class JobSerializer(serializers.ModelSerializer):
 
   def get_assigned_members(self,obj):
     members=[]
-    
+  
     for job_assign in JobAssigned.objects.all():
 
       if obj.id==job_assign.job.id:

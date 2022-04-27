@@ -1,20 +1,21 @@
 
-from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework import permissions
-from yaml import serialize
 from account.serializers import UserSerializer,LevelSerializer,CertificateSerializer,ProfileSerializer, UserUploadedCertificateSerializer,ProfileListSerializer,FAQSerializer,MyTokenObtainPairSerializer
 from account.models import Level, User,Certification,Profile,UserUploadedCertificate,FAQ
 from job.permissions import OwnerOnly
 from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView#customizing Token
+from rest_framework import filters
 
 # Create your views here.
 
 class UserView(generics.ListCreateAPIView):
     queryset=User.objects.all()
     serializer_class=UserSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['email']
 
     def perform_create(self, serializer):
         instance=serializer.save()

@@ -9,24 +9,59 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 
+class LevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Level
+        fields=['id','name',]
 
-    
+
+class CertificateSerializer(serializers.ModelSerializer):
+    level=LevelSerializer()
+    class Meta:
+        model=Certification
+        fields='__all__'
         
+
+class UserUploadedCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=UserUploadedCertificate
+        fields='__all__'
+        extra_kwargs={'user':{'read_only':True}}
+    
+class ProfileListSerializer(serializers.ModelSerializer):
+    level=serializers.SerializerMethodField('get_level')
+    total_certificates=serializers.SerializerMethodField('get_total_no_certificate')
+    class Meta:
+        model=Profile
+        fields=['profile_image','designation','phone_number','dob','allergies','medical_issues','level','total_certificates']
+
+    def get_level(self,obj):
+        user_upload_list=[]
+        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+            user_upload_list.append(user_upload.cert_name.level.name)
+        return user_upload_list[::-1]
+        # return UserUploadedCertificateSerializer(level_list,many=True).data
+    def get_total_no_certificate(self,obj):
+        user_upload_list=[]
+        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+            user_upload_list.append(user_upload)
+        return len(user_upload_list)
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(label='Confirm Password', write_only=True)
-   
-   
+    profile=ProfileListSerializer(read_only=True)
     class Meta:
 
         model=User
-        fields=['id','email','role','password','password2']
+        fields=['id','email','role','profile','password','password2']
         extra_kwargs={
             'password':{'write_only':True},
             'password2':{'write_only':True},
             'id':{'read_only':True},
             'assigned_job':{'read_only':True},
         }
+    
+    
 
     def validate(self, data):
         #validating email
@@ -52,30 +87,9 @@ class UserSerializer(serializers.ModelSerializer):
     #             job_list.append(job_assigned.job)
     #         return UserAssignedJobSerializer(job_list,many=True).data
     
-class ProfileListSerializer(serializers.ModelSerializer):
-    user_associated=UserSerializer()
-    class Meta:
-        model=Profile
-        fields='__all__'
-
-class LevelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Level
-        fields=['id','name',]
 
 
-class CertificateSerializer(serializers.ModelSerializer):
-    level=LevelSerializer()
-    class Meta:
-        model=Certification
-        fields='__all__'
-        
 
-class UserUploadedCertificateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=UserUploadedCertificate
-        fields='__all__'
-        extra_kwargs={'user':{'read_only':True}}
 
 
 class ProfileSerializer(serializers.ModelSerializer):
