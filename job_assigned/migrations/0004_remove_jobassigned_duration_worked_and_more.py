@@ -27,9 +27,8 @@ class Migration(migrations.Migration):
             name='Working_Duration',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_time', models.DateTimeField()),
-                ('end_time', models.DateTimeField()),
-                ('duration', models.DateTimeField()),
+                ('start_time', models.DateTimeField(null=True,blank=True)),
+                ('end_time', models.DateTimeField(null=True,blank=True)),
                 ('assigned_job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_job', to='job_assigned.jobassigned')),
             ],
         ),

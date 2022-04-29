@@ -1,11 +1,14 @@
 
 from rest_framework import serializers
-from job_assigned.models import JobAssigned
+from job_assigned.models import JobAssigned,WorkingDuration
 from job.serializers import JobSerializer
 from account.serializers import UserSerializer
 from notes.models import Notes
-
-
+from django.utils import timezone
+from datetime import timedelta
+from django.db import models
+import datetime
+from rest_framework import serializers
 
 
 class JobAssignedSerializer(serializers.ModelSerializer):
@@ -27,23 +30,17 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     # assigned_to=UserSerializer()
     assigned_by=UserSerializer()
     assigned_to=serializers.SerializerMethodField('find_all_user_associated_to_particular_task')
-
+    # working_duration_last_seven_days=serializers.SerializerMethodField('get_working_duration_of_seven_days')
     # assign_job=serializers.SerializerMethodField('assign_job')
     notes_count=serializers.SerializerMethodField('count_notes')
     class Meta:
         model=JobAssigned
-        fields=['id','job','assigned_to','assigned_by','timestamp','notes_count']
+        fields=['id','job','assigned_to','assigned_by','timestamp','notes_count',]
 
         extra_kwargs={'id':{'read_only':True},'assigned_by':{'read_only':True},'timestamp':{'read_only':True},
         
         
         }
-    
-    # def assign_job(self,obj):
-    #     return Job.objects.filter(assigned_to=self.request.user)
-    
-    
-     
     
     def count_notes(self,obj):
         return Notes.objects.filter(job_assigned=obj).count()
@@ -70,6 +67,51 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
 
         
         return UserSerializer(list,many=True).data
+    
+    # def get_working_duration_of_seven_days(self,obj):
+    #     now = timezone.now()
+        # today=Working_Duration.objects.filter(timestamp=now.date())
+        # yesterday=Working_Duration.objects.filter(timestamp__gte=(now - timedelta(hours=24)).date())
+        # last_7_day= WorkingDuration.objects.filter(timestamp__gte=(now - timedelta(days=7)).date()),
+        # working_duration=[today,yesterday,last_7_day]
+        
+        # last_seven_days_duration_obj_list=[]
+        # for query in last_7_day:
+        #     for quer in query:
+        #         # if query.assigned_job==obj:
+        #         if quer.assigned_job==obj:
+        #             last_seven_days_duration_obj_list.append(quer)
+
+        # #calcuting timestamp from today to last_seven days
+        # worked_history_last_seven_days={}
+        
+        # duration=timedelta(0,0)
+        # print(duration)
+        # for i in range(7):
+        #     calcutated_timestamp=now-timedelta(days=i)
+        #     print("calculated date",calcutated_timestamp.date())
+        #     # print(calcutated_timestamp,type(calcutated_timestamp))
+           
+        #     for query in last_seven_days_duration_obj_list:
+        #         print("object's date ",query.timestamp.date())
+        #         if query.timestamp.date()==calcutated_timestamp.date():
+        #             print("***")
+        #             duration= duration + query.duration
+        #             print("$$$$",duration)
+        #             worked_history_last_seven_days[str(calcutated_timestamp)]=duration
+                
+        
+ 
+        # print(worked_history_last_seven_days)
+        # return worked_history_last_seven_days
+      
+
+
+
+
+class WorkedLastDaysHistoryOnJobSerializer(serializers.Serializer):
+    date = serializers.DateField()
+    duration=serializers.DurationField()
 
 
 

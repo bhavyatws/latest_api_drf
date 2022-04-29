@@ -32,3 +32,4 @@ class JobSerializer(serializers.ModelSerializer):
  
     return UserSerializer(members,many=True).data
 
+
