@@ -30,12 +30,11 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     # assigned_to=UserSerializer()
     assigned_by=UserSerializer()
     assigned_to=serializers.SerializerMethodField('find_all_user_associated_to_particular_task')
-    # working_duration_last_seven_days=serializers.SerializerMethodField('get_working_duration_of_seven_days')
-    # assign_job=serializers.SerializerMethodField('assign_job')
+    assign_job_status=serializers.SerializerMethodField('get_assign_job_status')
     notes_count=serializers.SerializerMethodField('count_notes')
     class Meta:
         model=JobAssigned
-        fields=['id','job','assigned_to','assigned_by','timestamp','notes_count',]
+        fields=['id','job','assigned_to','assigned_by','timestamp','notes_count','assign_job_status']
 
         extra_kwargs={'id':{'read_only':True},'assigned_by':{'read_only':True},'timestamp':{'read_only':True},
         
@@ -44,6 +43,15 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     
     def count_notes(self,obj):
         return Notes.objects.filter(job_assigned=obj).count()
+
+
+    def get_assign_job_status(self,obj):
+        query = WorkingDuration.objects.filter(assigned_job=obj, end_time=None)
+        if query.exists():
+            return "Progress"
+        return "Stop"
+            
+
     
     # def get_all_notes(self,obj):
     #     list=[]
@@ -109,9 +117,6 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
 
 
 
-class WorkedLastDaysHistoryOnJobSerializer(serializers.Serializer):
-    date = serializers.DateField()
-    duration=serializers.DurationField()
 
 
 

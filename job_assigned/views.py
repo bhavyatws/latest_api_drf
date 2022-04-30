@@ -7,7 +7,7 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework import generics
 from job_assigned.models import JobAssigned,WorkingDuration
-from job_assigned.serializers import JobAssignedSerializer,JobAssignedListSerializer,WorkedLastDaysHistoryOnJobSerializer
+from job_assigned.serializers import JobAssignedSerializer,JobAssignedListSerializer
 from job.permissions import EmployerOnlyorReadOnly
 from job_assigned.permissions import OwnerOnly
 from itertools import chain
@@ -15,7 +15,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime
 from rest_framework.views import APIView
-from django.utils import timezone
 import pytz
 from django.utils import timezone
 from datetime import timedelta,datetime
@@ -62,43 +61,64 @@ class ListTaskAssignedView(generics.ListAPIView):
     # permission_classes=[permissions.IsAuthenticated]
 
 class StartTime(APIView):
-    def get(self,request,pk):
-        pk=self.kwargs.get('pk')
-        if JobAssigned.objects.filter(pk=pk).exists():
+    permission_classes = [permissions.IsAuthenticated,]
+
+    def post(self,request):
+        # pk=self.kwargs.get('id')
+        data=request.data
+        pk=data['id']
+       
+        if JobAssigned.objects.filter(pk=pk,assigned_to=self.request.user).exists():
             job_assign_obj=JobAssigned.objects.get(pk=pk)
             now = datetime.now(pytz.timezone('Asia/Kolkata'))
-            working_duration_obj=WorkingDuration(assigned_job=job_assign_obj,start_time=now)
-            working_duration_obj.save()
-            return Response({'started_time':now,'working_duration_id':working_duration_obj.id,'response':'job started'})
+            #checking if anyother assigned job he has started timer
+            current_user_work_duration_obj=WorkingDuration.objects.filter(assigned_job__assigned_to=self.request.user,end_time=None)
+            print(current_user_work_duration_obj)
+           
+            if current_user_work_duration_obj:
+                return Response("Please close the current working to start another job timer")
+           
+            latest_entery_work_duration_obj=WorkingDuration(assigned_job=job_assign_obj,start_time=now)
+            latest_entery_work_duration_obj.save()
+            return Response({'started_time':now,'working_duration_id':latest_entery_work_duration_obj.id,'response':'job started'})
         return Response({'response':'This job has\'t been assigned to you'})
 
 class EndTime(APIView):
-    def get(self,request,pk):
-        pk=self.kwargs.get('pk')
-        working_duration_obj=WorkingDuration.objects.filter(pk=pk)
-        print(working_duration_obj)
-        if working_duration_obj.exists():
-            working_duration_obj=WorkingDuration.objects.get(pk=pk)
-            now = datetime.now(pytz.timezone('Asia/Kolkata'))
+    permission_classes = [permissions.IsAuthenticated,]
+    def post(self,request):
+        data=request.data
+        pk=data['id']
+       
+        if JobAssigned.objects.filter(pk=pk).exists():
+            job_assign_obj=JobAssigned.objects.get(pk=pk)
+            queries_workduration=WorkingDuration.objects.filter(assigned_job=job_assign_obj,assigned_job__assigned_to=self.request.user,end_time=None)
+            if queries_workduration:
+                latest_entery_work_duration_obj=queries_workduration.latest('id')
             
-            working_duration_obj.end_time=now
-            working_duration_obj.save()
-        
-            duration=working_duration_obj.end_time-working_duration_obj.start_time
-            print(duration)
-            working_duration_obj.duration=duration
+                    
+                now = datetime.now(pytz.timezone('Asia/Kolkata'))
+                
+                latest_entery_work_duration_obj.end_time=now
+                latest_entery_work_duration_obj.save()
+            
+                duration=latest_entery_work_duration_obj.end_time-latest_entery_work_duration_obj.start_time
+                print(duration)
+                latest_entery_work_duration_obj.duration=duration
 
-            working_duration_obj.save()
-            return Response({'clock out time':now,'Work duration':duration,'working_duration_id':working_duration_obj.id,'response':'Clocked Out Successfully'})
+                latest_entery_work_duration_obj.save()
+                return Response({'clock out time':now,'Work duration':duration,'working_duration_id':latest_entery_work_duration_obj.id,'response':'Clocked Out Successfully'})
+            else:
+                return Response({'response':'You have not start working on this'})
+
         else:
-            return Response({'response':'You have not started this task to do'})
+            return Response({'response':'That job has not been assigned to you '})
 
-class Calculating_last_seven_days_working_duration(APIView):
+class CalculatingLastSevenDaysWorkingDuration(APIView):
     def get(self,request,pk):
 
         job_assigned=JobAssigned.objects.get(pk=pk)
         now = datetime.now()
-      
+        final_result=[]
         temp_result={}
         for  i in range(7):
        
@@ -106,19 +126,13 @@ class Calculating_last_seven_days_working_duration(APIView):
 
             work_duratin_obj=WorkingDuration.objects.filter(assigned_job=job_assigned,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
           
-            print(work_duratin_obj['duration'])
-            # final_result_1.append(current_datetime)
-            # final_result_2.append(work_duratin_obj['duration'])
            
-            # temp_result['date'+str(i+1)]=current_datetime
-            # temp_result['duration'+str(i+1)]=work_duratin_obj['duration']
-           
-          
-           
-            # print(final_result)
-        # print(final_result)
-        # print(final_result)    
-        # return Response(temp_result)
+            temp_result['date']=current_datetime
+            temp_result['duration']=work_duratin_obj['duration']
+            temp_result_2=temp_result.copy()
+            final_result.append(temp_result_2)
+             
+        return Response(final_result)
        
 
         

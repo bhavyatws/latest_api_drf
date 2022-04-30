@@ -1,5 +1,5 @@
 from django.urls import path,include
-from account.views import UserView,Levelview,UserUploadedCertificateview,Certificationview,Profileview,FAQView,ProfileListView
+from account.views import UserView,Levelview,UserUploadedCertificateview,Certificationview,Profileview,FAQView,ProfileListView,WorkingDurationPerEmployee
 from rest_framework.routers import DefaultRouter
 router=DefaultRouter()
 router.register('user-upload-certificate',UserUploadedCertificateview,basename="certification")
@@ -11,5 +11,6 @@ urlpatterns = [
     path('profile/<int:pk>/',Profileview.as_view()),
     path('faq/',FAQView.as_view()),
     path('certification/',Certificationview.as_view()),
+    path('working-duration-per-employee/<int:pk>/',WorkingDurationPerEmployee.as_view()),
     path('',include(router.urls)),
 ]

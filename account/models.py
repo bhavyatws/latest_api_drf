@@ -27,7 +27,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return f'{self.email}'
 
 
 class Level(models.Model):

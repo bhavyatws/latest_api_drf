@@ -11,7 +11,10 @@ from job_assigned.models import JobAssigned
 from rest_framework import filters
 # Create your views here.
 class JobView(viewsets.ModelViewSet):
-    queryset=Job.objects.all()
+    def get_queryset(self):
+        return Job.objects.filter(user_associated=self.request.user)
+    
+    
     serializer_class=JobSerializer
     permission_classes=[permissions.IsAuthenticated,OwnerOnly,EmployerOnlyorReadOnly]
     filter_backends = [filters.SearchFilter]

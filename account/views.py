@@ -8,6 +8,11 @@ from job.permissions import OwnerOnly
 from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView#customizing Token
 from rest_framework import filters
+from rest_framework.views import APIView
+from job_assigned.models import WorkingDuration
+from datetime import datetime, timedelta
+from rest_framework.response import Response
+from django.db.models import Sum
 
 # Create your views here.
 
@@ -57,6 +62,23 @@ class Profileview(generics.UpdateAPIView):
     serializer_class=ProfileSerializer
     permission_classes=[permissions.IsAuthenticated,OwnerOnly]
 
+
+class WorkingDurationPerEmployee(APIView):
+    def get(self,request,pk):
+        now=datetime.now()
+        user_obj=User.objects.get(pk=pk)
+        final_result=[]
+        temp_result_1={}
+        for i in range(7):
+            current_datetime=now-timedelta(days=i)
+            working_obj=WorkingDuration.objects.filter(assigned_job__assigned_to=user_obj,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
+            current_datetime=current_datetime.date()
+            temp_result_1['date']=current_datetime
+            temp_result_1['duration']=working_obj['duration']
+            
+            temp_result_2=temp_result_1.copy()#copying dict to temp dict and appending that dict to final_result list
+            final_result.append(temp_result_2)
+        return Response(final_result)
 
 
 class FAQView(generics.ListAPIView):

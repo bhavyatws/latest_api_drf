@@ -11,7 +11,7 @@ class JobAssigned(models.Model):
     timestamp=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.job.job_name} to {self.assigned_to.email}'
+        return f'{self.id}-{self.job.job_name} to {self.assigned_to.email}'
 
 class WorkingDuration(models.Model):
     assigned_job=models.ForeignKey(JobAssigned,on_delete=models.CASCADE,related_name="assigned_job")
@@ -21,6 +21,6 @@ class WorkingDuration(models.Model):
     timestamp=models.DateTimeField(auto_now_add=True,null=True)
 
     def __str__(self):
-        return self.assigned_job.job.job_name
+        return f'{self.id}-{self.assigned_job.job.job_name}'
     
 
