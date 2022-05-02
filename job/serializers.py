@@ -31,5 +31,10 @@ class JobSerializer(serializers.ModelSerializer):
     
  
     return UserSerializer(members,many=True).data
+  
+class JobListAssignedSerializer(serializers.ModelSerializer):
+  class Meta:
+    model=Job
+    fields=['id','job_name','description']
 
 

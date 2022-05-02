@@ -29,6 +29,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     #django debug toolbar
     path('__debug__/', include('debug_toolbar.urls')),
+    #silk (like debug toolbar this tool )
+    path('silk/', include('silk.urls', namespace='silk')),
     #Simple JWT Route
     path("api-auth/", include("rest_framework.urls")),  
     path("api-token/",MyTokenObtainPairView.as_view(),name ='token_obtain_pair'),

@@ -33,7 +33,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
     total_certificates=serializers.SerializerMethodField('get_total_no_certificate')
     class Meta:
         model=Profile
-        fields=['profile_image','designation','phone_number','dob','allergies','medical_issues','level','total_certificates']
+        fields=['profile_image','user_associated','designation','phone_number','dob','allergies','medical_issues','level','total_certificates']
 
     def get_level(self,obj):
         user_upload_list=[]
@@ -47,9 +47,37 @@ class ProfileListSerializer(serializers.ModelSerializer):
             user_upload_list.append(user_upload)
         return len(user_upload_list)
 
+class ProfileListSerializerJobAssigned(serializers.ModelSerializer):
+    class Meta:
+        model=Profile
+        fields=['profile_image',]
+class ProfileListUserSerializer(serializers.ModelSerializer):
+    level=serializers.SerializerMethodField('get_level')
+    total_certificates=serializers.SerializerMethodField('get_total_no_certificate')
+    class Meta:
+        model=Profile
+        fields=['profile_image','designation','phone_number','dob','allergies','medical_issues','level','total_certificates']
+
+    def get_level(self,obj):
+        user_upload_list=[]
+        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+            user_upload_list.append(user_upload.cert_name.level.name)
+        return user_upload_list[::-1]
+        # return UserUploadedCertificateSerializer(level_list,many=True).data
+    def get_total_no_certificate(self,obj):
+        user_upload_list=[]
+        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+            user_upload_list.append(user_upload)
+        return len(user_upload_list)
+class UserListSerializerJobAssigned(serializers.ModelSerializer):
+    profile=ProfileListSerializerJobAssigned(read_only=True)
+    class Meta:
+        model=User
+        fields=['id','profile']
+
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(label='Confirm Password', write_only=True)
-    profile=ProfileListSerializer(read_only=True)
+    profile=ProfileListUserSerializer(read_only=True)
     class Meta:
 
         model=User
@@ -90,7 +118,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
-
+class NotesUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=['id','email']
 
 class ProfileSerializer(serializers.ModelSerializer):
     

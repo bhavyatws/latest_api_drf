@@ -2,7 +2,7 @@
 
 
 from django.http import JsonResponse
-from job.models import Job
+from job.models import Job,User
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework import generics
@@ -16,11 +16,10 @@ from rest_framework import status
 from datetime import datetime
 from rest_framework.views import APIView
 import pytz
-from django.utils import timezone
 from datetime import timedelta,datetime
-from django.db import models
-from django.db.models import Sum,Avg
-from rest_framework.renderers import JSONRenderer
+from django.db.models import Sum
+from rest_framework import filters
+
 
 
 
@@ -48,6 +47,22 @@ class Job_assigned_view(viewsets.ModelViewSet):
             return JobAssignedListSerializer
         return JobAssignedSerializer
     
+    def create(self, request, *args, **kwargs):
+        data=self.request.data
+        job_id=data['job']
+        user_id=data['assigned_to']
+        user_obj=User.objects.filter(id=user_id)
+        if user_obj.exists:
+            user_obj=User.objects.get(id=user_id)
+            if user_obj==self.request.user:
+                return Response({'response':'you are trying  assign your job to yourself '},status=status.HTTP_400_BAD_REQUEST)
+
+        job_obj=Job.objects.filter(id=job_id)
+        if not job_obj.exists:
+            job_obj=Job.objects.get(id=job_id)
+            if job_obj.user_associated!=self.request.user:
+                return Response({'response':'another employer/"s job  assigning'},status=status.HTTP_400_BAD_REQUEST)
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(assigned_by=self.request.user)
@@ -56,8 +71,18 @@ class ListTaskAssignedView(generics.ListAPIView):
     def get_queryset(self):
         # combine_result=list(chain(JobAssigned.objects.filter(assigned_to=self.request.user),Job.objects.filter(assigned_to=self.request.user)))
         # print(combine_result)
+        return JobAssigned.objects.filter(assigned_to=self.request.user).prefetch_related('job')
+    serializer_class=JobAssignedListSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['job__job_name', 'job__description']
+
+class DetailTaskAssignedView(generics.RetrieveAPIView):
+    def get_queryset(self):
+        # combine_result=list(chain(JobAssigned.objects.filter(assigned_to=self.request.user),Job.objects.filter(assigned_to=self.request.user)))
+        # print(combine_result)
         return JobAssigned.objects.filter(assigned_to=self.request.user)
     serializer_class=JobAssignedListSerializer
+    
     # permission_classes=[permissions.IsAuthenticated]
 
 class StartTime(APIView):
@@ -76,12 +101,12 @@ class StartTime(APIView):
             print(current_user_work_duration_obj)
            
             if current_user_work_duration_obj:
-                return Response("Please close the current working to start another job timer")
+                return Response({'response':'Please close the current working to start another job timer'},status=status.HTTP_400_BAD_REQUEST)
            
             latest_entery_work_duration_obj=WorkingDuration(assigned_job=job_assign_obj,start_time=now)
             latest_entery_work_duration_obj.save()
             return Response({'started_time':now,'working_duration_id':latest_entery_work_duration_obj.id,'response':'job started'})
-        return Response({'response':'This job has\'t been assigned to you'})
+        return Response({'response':'This job has\'t been assigned to you'},status=status.HTTP_400_BAD_REQUEST)
 
 class EndTime(APIView):
     permission_classes = [permissions.IsAuthenticated,]
@@ -111,7 +136,7 @@ class EndTime(APIView):
                 return Response({'response':'You have not start working on this'})
 
         else:
-            return Response({'response':'That job has not been assigned to you '})
+            return Response({'response':'That job has not been assigned to you '},status=status.HTTP_400_BAD_REQUEST)
 
 class CalculatingLastSevenDaysWorkingDuration(APIView):
     def get(self,request,pk):

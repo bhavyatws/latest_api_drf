@@ -2,7 +2,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework import permissions
-from account import serializers
 from job.serializers import JobSerializer
 from job.models import Job
 from account.models import User
@@ -24,8 +23,11 @@ class JobView(viewsets.ModelViewSet):
         data=request.data
         # data._mutable=True # we have to do this,if data coming from form_data
         #if data coming from json ,then no need to do this
-        members_array=data['member_array']
-        del data['member_array']
+        if 'member_array' in data:
+            members_array=data['member_array']
+            del data['member_array']
+        else:
+            members_array=None
 
         # data._mutable=False
         serializer = self.get_serializer(data=data)
@@ -34,15 +36,15 @@ class JobView(viewsets.ModelViewSet):
         self.perform_create(serializer)
         latest_saved_job_id=Job.objects.latest("id").id
         latest_job_id=Job.objects.get(id=latest_saved_job_id)
-       
-        for member_id in members_array:
-            print(member_id)
-            if User.objects.filter(id=member_id).exists():
-                user_id=User.objects.get(id=member_id)
-                job_assigned=JobAssigned(assigned_to=user_id,job=latest_job_id,assigned_by=self.request.user)
-                job_assigned.save()
-            else:
-                pass
+        if members_array is not None:
+            for member_id in members_array:
+                print(member_id)
+                if User.objects.filter(id=member_id).exists():
+                    user_id=User.objects.get(id=member_id)
+                    job_assigned=JobAssigned(assigned_to=user_id,job=latest_job_id,assigned_by=self.request.user)
+                    job_assigned.save()
+                else:
+                    pass
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

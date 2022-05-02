@@ -1,7 +1,6 @@
 from account.models import Profile
 from notes.models import Notes
-from account.serializers import UserSerializer
-from job_assigned.models import JobAssigned
+from account.serializers import NotesUserSerializer
 from rest_framework import serializers
 
 class NotesSerializer(serializers.ModelSerializer):
@@ -12,11 +11,12 @@ class NotesSerializer(serializers.ModelSerializer):
 
 class NotesListSerializer(serializers.ModelSerializer):
     # user_associated=UserSerializer()
+    user_associated=NotesUserSerializer(read_only=True)
     profile_image=serializers.SerializerMethodField('get_profile_image')
 
     class Meta:
         model=Notes
-        fields=['id','profile_image','job_assigned','notes','timestamp']
+        fields=['id','user_associated','profile_image','job_assigned','notes','timestamp']
 
     
        

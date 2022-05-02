@@ -51,7 +51,10 @@ INSTALLED_APPS = [
     'notes',
     'rest_framework_simplejwt',
     'django_filters',
+    'silk',
+
 ]
+
 
 MIDDLEWARE = [
     #placing whitenoise so that it can server static file on production
@@ -64,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",#django debug toolbar
+    'silk.middleware.SilkyMiddleware',
+  
   
 ]
 
@@ -212,4 +217,6 @@ INTERNAL_IPS = [
     # ...
 ]
 
+#silk 
+SILKY_PYTHON_PROFILER = True
 
