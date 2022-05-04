@@ -12,6 +12,18 @@ class JobAssigned(models.Model):
 
     def __str__(self):
         return f'{self.id}-{self.job.job_name} to {self.assigned_to.email}'
+    
+    # @property
+    # def find_all_members(self):
+    #     list=[]
+    #     job_id=self.job.id
+    #     assign_job=JobAssigned.objects.filter(job=job_id).select_related('assigned_to','assigned_by','job')
+       
+        
+    #     for job in assign_job:
+    #         if job.job==self.job:
+    #             list.append(job.assigned_to)
+    #     return list
 
 class WorkingDuration(models.Model):
     assigned_job=models.ForeignKey(JobAssigned,on_delete=models.CASCADE,related_name="assigned_job")

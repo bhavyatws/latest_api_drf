@@ -42,7 +42,7 @@ class Certificationview(generics.ListAPIView):
    
 
 class UserUploadedCertificateview(viewsets.ModelViewSet):
-    queryset=UserUploadedCertificate.objects.all()
+    queryset=UserUploadedCertificate.objects.select_related('user','cert_name').all()
     serializer_class=UserUploadedCertificateSerializer
     permission_classes=[permissions.IsAuthenticated]
 
@@ -51,14 +51,14 @@ class UserUploadedCertificateview(viewsets.ModelViewSet):
 
 class ProfileListView(generics.ListAPIView):
     def get_queryset(self):
-        return Profile.objects.filter(user_associated=self.request.user)
+        return Profile.objects.select_related('user_associated').filter(user_associated=self.request.user)
     serializer_class=ProfileListSerializer
     permission_classes=[permissions.IsAuthenticated,OwnerOnly]
 
 class Profileview(generics.UpdateAPIView):
     def get_queryset(self):
         pk=self.kwargs.get('pk')
-        return Profile.objects.filter(pk=pk)
+        return Profile.objects.select_related('user_associated').filter(pk=pk)
     serializer_class=ProfileSerializer
     permission_classes=[permissions.IsAuthenticated,OwnerOnly]
 
@@ -71,7 +71,7 @@ class WorkingDurationPerEmployee(APIView):
         temp_result_1={}
         for i in range(7):
             current_datetime=now-timedelta(days=i)
-            working_obj=WorkingDuration.objects.filter(assigned_job__assigned_to=user_obj,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
+            working_obj=WorkingDuration.objects.select_related('assigned_job').filter(assigned_job__assigned_to=user_obj,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
             current_datetime=current_datetime.date()
             temp_result_1['date']=current_datetime
             temp_result_1['duration']=working_obj['duration']

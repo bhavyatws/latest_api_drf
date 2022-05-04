@@ -24,7 +24,7 @@ class JobSerializer(serializers.ModelSerializer):
   def get_assigned_members(self,obj):
     members=[]
   
-    for job_assign in JobAssigned.objects.all():
+    for job_assign in JobAssigned.objects.select_related('assigned_by','assigned_to','job').all():
 
       if obj.id==job_assign.job.id:
         members.append( job_assign.assigned_to)

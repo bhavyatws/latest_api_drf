@@ -31,7 +31,7 @@ class NotesPerJob(generics.ListAPIView):
     def get_queryset(self):
         assign_job_id=self.request.query_params.get('id')
         print(assign_job_id)
-        return Notes.objects.filter(job_assigned=assign_job_id)
+        return Notes.objects.select_related('user_associated','job_assigned').filter(job_assigned=assign_job_id)
     serializer_class=NotesListSerializer
     permission_classes=[permissions.IsAuthenticated]
  

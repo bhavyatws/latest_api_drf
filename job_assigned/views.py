@@ -71,7 +71,7 @@ class ListTaskAssignedView(generics.ListAPIView):
     def get_queryset(self):
         # combine_result=list(chain(JobAssigned.objects.filter(assigned_to=self.request.user),Job.objects.filter(assigned_to=self.request.user)))
         # print(combine_result)
-        return JobAssigned.objects.filter(assigned_to=self.request.user).prefetch_related('job')
+        return JobAssigned.objects.select_related('job','assigned_to','assigned_by').filter(assigned_to=self.request.user)
     serializer_class=JobAssignedListSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['job__job_name', 'job__description']
@@ -80,7 +80,7 @@ class DetailTaskAssignedView(generics.RetrieveAPIView):
     def get_queryset(self):
         # combine_result=list(chain(JobAssigned.objects.filter(assigned_to=self.request.user),Job.objects.filter(assigned_to=self.request.user)))
         # print(combine_result)
-        return JobAssigned.objects.filter(assigned_to=self.request.user)
+        return JobAssigned.objects.filter(assigned_to=self.request.user).select_related('job','assigned_to','assigned_by')
     serializer_class=JobAssignedListSerializer
     
     # permission_classes=[permissions.IsAuthenticated]

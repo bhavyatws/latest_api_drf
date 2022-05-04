@@ -26,16 +26,19 @@ class JobAssignedSerializer(serializers.ModelSerializer):
 
 class JobAssignedListSerializer(serializers.ModelSerializer):
      
-    job=JobListAssignedSerializer(read_only=True)
-    # assigned_to=UserSerializer()
+    # job=JobListAssignedSerializer(read_only=True)
+    # assigned_to=UserListSerializerJobAssigned()
     # assigned_by=UserSerializer()
     members=serializers.SerializerMethodField('find_all_user_associated_to_particular_task')
     assign_job_status=serializers.SerializerMethodField('get_assign_job_status')
     notes_count=serializers.SerializerMethodField('count_notes')
     total_hours_worked_in_second=serializers.SerializerMethodField('get_total_hours_worked')
+    # members=UserListSerializerJobAssigned(source='find_all_members',many=True)
+   
     class Meta:
         model=JobAssigned
         fields=['id','job','members','timestamp','notes_count','assign_job_status','total_hours_worked_in_second']
+        # fields=['members']
 
         extra_kwargs={'id':{'read_only':True},'assigned_by':{'read_only':True},'timestamp':{'read_only':True},
         
@@ -43,17 +46,17 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
         }
     
     def count_notes(self,obj):
-        return Notes.objects.filter(job_assigned=obj).prefetch_related('assigned_job').count()
+        return Notes.objects.filter(job_assigned=obj).select_related('job_assigned','user_associated').only('job_assigned').count()
 
 
     def get_assign_job_status(self,obj):
-        query = WorkingDuration.objects.filter(assigned_job=obj, end_time=None).prefetch_related('assigned_job')
+        query = WorkingDuration.objects.select_related('assigned_job').filter(assigned_job=obj, end_time=None)
         if query.exists():
             return "Progress"
         return "Stop"
     
     def get_total_hours_worked(self,obj):
-        work_duration_obj=WorkingDuration.objects.filter(assigned_job=obj).prefetch_related('assigned_job').aggregate(duration=Sum('duration'))
+        work_duration_obj=WorkingDuration.objects.select_related('assigned_job').filter(assigned_job=obj).only('duration').aggregate(duration=Sum('duration'))
         return work_duration_obj['duration']
             
 
@@ -66,12 +69,12 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     #             list.append(notes)
     #     return NotesListSerializer(list,many=True).data
 
-    #finding all assigned_to user to particular job
+    # finding all assigned_to user to particular job
     def find_all_user_associated_to_particular_task(self,obj):
 
         list=[]
         job_id=obj.job.id
-        assign_job=JobAssigned.objects.filter(job=job_id)
+        assign_job=JobAssigned.objects.filter(job=job_id).select_related('assigned_to','assigned_by','job')
        
         
         for job in assign_job:

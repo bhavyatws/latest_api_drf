@@ -21,7 +21,7 @@ class NotesListSerializer(serializers.ModelSerializer):
     
        
     def get_profile_image(self,obj):
-        profile_obj=Profile.objects.get(user_associated=obj.user_associated)
+        profile_obj=Profile.objects.select_related('user_associated').get(user_associated=obj.user_associated)
         if profile_obj.profile_image:
             return profile_obj.profile_image
        

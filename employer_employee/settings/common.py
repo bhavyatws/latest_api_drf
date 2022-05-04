@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'notes',
     'rest_framework_simplejwt',
     'django_filters',
-    'silk',
+    # 'silk',
 
 ]
 
@@ -67,7 +67,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",#django debug toolbar
-    'silk.middleware.SilkyMiddleware',
+    # 'silk.middleware.SilkyMiddleware',
   
   
 ]
@@ -153,7 +153,11 @@ AUTH_USER_MODEL ='account.User'
 #Restframework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',),
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+      
+        ),
 }
 
 SIMPLE_JWT = {
@@ -218,5 +222,5 @@ INTERNAL_IPS = [
 ]
 
 #silk 
-SILKY_PYTHON_PROFILER = True
+# SILKY_PYTHON_PROFILER = True
 

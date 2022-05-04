@@ -37,13 +37,13 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     def get_level(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
             user_upload_list.append(user_upload.cert_name.level.name)
         return user_upload_list[::-1]
         # return UserUploadedCertificateSerializer(level_list,many=True).data
     def get_total_no_certificate(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
             user_upload_list.append(user_upload)
         return len(user_upload_list)
 
@@ -60,13 +60,13 @@ class ProfileListUserSerializer(serializers.ModelSerializer):
 
     def get_level(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
             user_upload_list.append(user_upload.cert_name.level.name)
         return user_upload_list[::-1]
         # return UserUploadedCertificateSerializer(level_list,many=True).data
     def get_total_no_certificate(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
             user_upload_list.append(user_upload)
         return len(user_upload_list)
 class UserListSerializerJobAssigned(serializers.ModelSerializer):
@@ -94,7 +94,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         #validating email
         email = data.get('email', None)
-        existing = User.objects.filter(email=email).first()
+        existing = User.objects.filter(email=email).only('email').first()
         if existing:
             raise serializers.ValidationError("Someone with that email "
                 "address has already registered. Was it you?")
