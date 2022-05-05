@@ -42,7 +42,8 @@ class Certificationview(generics.ListAPIView):
    
 
 class UserUploadedCertificateview(viewsets.ModelViewSet):
-    queryset=UserUploadedCertificate.objects.select_related('user','cert_name').all()
+    def get_queryset(self):
+        return UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=self.request.user)
     serializer_class=UserUploadedCertificateSerializer
     permission_classes=[permissions.IsAuthenticated]
 
@@ -71,7 +72,7 @@ class WorkingDurationPerEmployee(APIView):
         temp_result_1={}
         for i in range(7):
             current_datetime=now-timedelta(days=i)
-            working_obj=WorkingDuration.objects.select_related('assigned_job').filter(assigned_job__assigned_to=user_obj,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
+            working_obj=WorkingDuration.objects.select_related('assigned_job').filter(assigned_job__assigned_to__id=user_obj.id,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
             current_datetime=current_datetime.date()
             temp_result_1['date']=current_datetime
             temp_result_1['duration']=working_obj['duration']

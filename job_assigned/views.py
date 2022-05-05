@@ -22,7 +22,6 @@ from rest_framework import filters
 
 
 
-
 # Create your views here.
 class Job_assigned_view(viewsets.ModelViewSet):
     queryset=JobAssigned.objects.all()
@@ -116,7 +115,7 @@ class EndTime(APIView):
        
         if JobAssigned.objects.filter(pk=pk).exists():
             job_assign_obj=JobAssigned.objects.get(pk=pk)
-            queries_workduration=WorkingDuration.objects.filter(assigned_job=job_assign_obj,assigned_job__assigned_to=self.request.user,end_time=None)
+            queries_workduration=WorkingDuration.objects.filter(assigned_job__id=job_assign_obj.id,assigned_job__assigned_to=self.request.user,end_time=None)
             if queries_workduration:
                 latest_entery_work_duration_obj=queries_workduration.latest('id')
             
@@ -149,7 +148,7 @@ class CalculatingLastSevenDaysWorkingDuration(APIView):
        
             current_datetime=(now-timedelta(days=i)).date()
 
-            work_duratin_obj=WorkingDuration.objects.filter(assigned_job=job_assigned,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
+            work_duratin_obj=WorkingDuration.objects.filter(assigned_job__id=job_assigned.id,timestamp__date=current_datetime).aggregate(duration=Sum('duration'))
           
            
             temp_result['date']=current_datetime

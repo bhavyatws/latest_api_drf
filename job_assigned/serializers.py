@@ -56,7 +56,7 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
         return "Stop"
     
     def get_total_hours_worked(self,obj):
-        work_duration_obj=WorkingDuration.objects.select_related('assigned_job').filter(assigned_job=obj).only('duration').aggregate(duration=Sum('duration'))
+        work_duration_obj=WorkingDuration.objects.select_related('assigned_job').filter(assigned_job__id=obj.job.id).only('duration').aggregate(duration=Sum('duration'))
         return work_duration_obj['duration']
             
 
@@ -70,11 +70,12 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     #     return NotesListSerializer(list,many=True).data
 
     # finding all assigned_to user to particular job
+
     def find_all_user_associated_to_particular_task(self,obj):
 
         list=[]
         job_id=obj.job.id
-        assign_job=JobAssigned.objects.filter(job=job_id).select_related('assigned_to','assigned_by','job')
+        assign_job=JobAssigned.objects.select_related('job','assigned_to').filter(job=job_id)
        
         
         for job in assign_job:
@@ -121,11 +122,6 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
         # print(worked_history_last_seven_days)
         # return worked_history_last_seven_days
       
-
-
-
-
-
 
 
         

@@ -6,9 +6,6 @@ from django.forms import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-
-
-
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model=Level
@@ -37,13 +34,13 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     def get_level(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user__id=obj.user_associated__id):
             user_upload_list.append(user_upload.cert_name.level.name)
         return user_upload_list[::-1]
         # return UserUploadedCertificateSerializer(level_list,many=True).data
     def get_total_no_certificate(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user__id=obj.user_associated__id):
             user_upload_list.append(user_upload)
         return len(user_upload_list)
 
@@ -60,13 +57,13 @@ class ProfileListUserSerializer(serializers.ModelSerializer):
 
     def get_level(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user__id=obj.user_associated.id):
             user_upload_list.append(user_upload.cert_name.level.name)
         return user_upload_list[::-1]
         # return UserUploadedCertificateSerializer(level_list,many=True).data
     def get_total_no_certificate(self,obj):
         user_upload_list=[]
-        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user=obj.user_associated):
+        for user_upload in UserUploadedCertificate.objects.select_related('user','cert_name').filter(user__id=obj.user_associated.id):
             user_upload_list.append(user_upload)
         return len(user_upload_list)
 class UserListSerializerJobAssigned(serializers.ModelSerializer):
@@ -96,8 +93,7 @@ class UserSerializer(serializers.ModelSerializer):
         email = data.get('email', None)
         existing = User.objects.filter(email=email).only('email').first()
         if existing:
-            raise serializers.ValidationError("Someone with that email "
-                "address has already registered. Was it you?")
+            raise serializers.ValidationError("Someone with that email  address has already registered. Was it you?")
         # return email
 
         #validating password
