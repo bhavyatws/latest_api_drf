@@ -15,34 +15,31 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from employer_employee.settings.common import *
 from rest_framework_simplejwt import views as jwt_views
-from account.views import MyTokenObtainPairView#Customized TokenObtainer
+from account.views import MyTokenObtainPairView  # Customized TokenObtainer
+
 # from employer_employee.settings.production import DEBUG404
 
 
-
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    #django debug toolbar
-    path('__debug__/', include('debug_toolbar.urls')),
-    #silk (like debug toolbar this tool )
+    path("admin/", admin.site.urls),
+    # django debug toolbar
+    path("__debug__/", include("debug_toolbar.urls")),
+    # silk (like debug toolbar this tool )
     # path('silk/', include('silk.urls', namespace='silk')),
     # path( "api-auth/", include("rest_framework.urls")),
-    #Simple JWT Route
-    path("api-auth/", include("rest_framework.urls")),  
-    path("api-token/",MyTokenObtainPairView.as_view(),name ='token_obtain_pair'),
-    path('api/token/refresh/',jwt_views.TokenRefreshView.as_view(),name ='token_refresh'),
-    #User API
-    path('account/',include('account.urls')),
-    path('job/',include('job.urls')),
-    path('job-assigned/',include('job_assigned.urls')),
-    path('notes/',include('notes.urls')),
-    
-]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
-
-
-
+    # Simple JWT Route
+    path("api-auth/", include("rest_framework.urls")),
+    path("api-token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path(
+        "api/token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"
+    ),
+    # User API
+    path("account/", include("account.urls")),
+    path("job/", include("job.urls")),
+    path("job-assigned/", include("job_assigned.urls")),
+    path("notes/", include("notes.urls")),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

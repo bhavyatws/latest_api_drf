@@ -1,6 +1,5 @@
-import os
-from employer_employee.settings.common import *
- 
+
+from employer_employee.settings.common import * # noqa
 DEBUG = False
 
 

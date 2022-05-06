@@ -1,11 +1,10 @@
-from django.urls import path,include
+from django.urls import path, include
 from job.views import JobView
 from rest_framework.routers import DefaultRouter
-router=DefaultRouter()
-router.register('',JobView,basename="job")
+
+router = DefaultRouter()
+router.register("", JobView, basename="job")
 
 urlpatterns = [
-    
-    path('',include(router.urls)),
+    path("", include(router.urls)),
 ]
-
