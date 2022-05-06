@@ -5,7 +5,7 @@ on:
   # but only for the main branch
   push:
     branches:
-      - main
+      - lint_action_flake
   pull_request:
     branches:
       - main
