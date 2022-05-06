@@ -1,4 +1,3 @@
-
 from django.db import models
 from account.models import User
 from job_assigned.models import JobAssigned
