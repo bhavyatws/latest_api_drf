@@ -121,8 +121,3 @@ class FAQView(generics.ListAPIView):
 # Customizing Token Response
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
-
-
-
-
-
