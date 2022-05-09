@@ -7,29 +7,44 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('job_assigned', '0003_alter_jobassigned_duration_worked'),
+        ("job_assigned", "0003_alter_jobassigned_duration_worked"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='jobassigned',
-            name='duration_worked',
+            model_name="jobassigned",
+            name="duration_worked",
         ),
         migrations.RemoveField(
-            model_name='jobassigned',
-            name='end_time',
+            model_name="jobassigned",
+            name="end_time",
         ),
         migrations.RemoveField(
-            model_name='jobassigned',
-            name='start_time',
+            model_name="jobassigned",
+            name="start_time",
         ),
         migrations.CreateModel(
-            name='Working_Duration',
+            name="Working_Duration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_time', models.DateTimeField(null=True,blank=True)),
-                ('end_time', models.DateTimeField(null=True,blank=True)),
-                ('assigned_job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_job', to='job_assigned.jobassigned')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start_time", models.DateTimeField(null=True, blank=True)),
+                ("end_time", models.DateTimeField(null=True, blank=True)),
+                (
+                    "assigned_job",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assigned_job",
+                        to="job_assigned.jobassigned",
+                    ),
+                ),
             ],
         ),
     ]

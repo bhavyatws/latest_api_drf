@@ -195,9 +195,7 @@ class CalculatingLastSevenDaysWorkingDuration(APIView):
             current_datetime = (now - timedelta(days=i)).date()
             work_duratin_obj = WorkingDuration.objects.filter(
                 assigned_job__id=job_assigned.id, timestamp__date=current_datetime
-            ).aggregate(
-                duration=Sum("duration")
-            )
+            ).aggregate(duration=Sum("duration"))
             temp_result["date"] = current_datetime
             temp_result["duration"] = work_duratin_obj["duration"]
             temp_result_2 = temp_result.copy()

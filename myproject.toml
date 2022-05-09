@@ -1,11 +1,17 @@
 [tool.black]
-...
-exclude = '''
+line-length=119
+exclude='''
 
 (
   /(
-    ...
-    | .+/migrations
+
+    | migrations
+    | sqldiff.exe
+    | sqlite3_analyzer.exe
+    | sqlite3.exe
+    | db.sqlite3
+    | requirements.txt
+    | Procfile
   )/
 )
 '''

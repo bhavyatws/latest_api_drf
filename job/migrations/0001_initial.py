@@ -15,19 +15,44 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('job_name', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('job_status', models.CharField(choices=[('New', 'New'), ('Progress', 'Progress'), ('Complete', 'Complete')], max_length=30)),
-                ('job_deadline', models.DateField()),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('user_associated', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("job_name", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                (
+                    "job_status",
+                    models.CharField(
+                        choices=[
+                            ("New", "New"),
+                            ("Progress", "Progress"),
+                            ("Complete", "Complete"),
+                        ],
+                        max_length=30,
+                    ),
+                ),
+                ("job_deadline", models.DateField()),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user_associated",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Job',
-                'ordering': ('timestamp',),
+                "verbose_name": "Job",
+                "ordering": ("timestamp",),
             },
         ),
     ]

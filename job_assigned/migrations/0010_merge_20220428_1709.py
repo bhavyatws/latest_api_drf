@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('job_assigned', '0005_working_duration_timestamp_and_more'),
-        ('job_assigned', '0009_alter_working_duration_duration'),
+        ("job_assigned", "0005_working_duration_timestamp_and_more"),
+        ("job_assigned", "0009_alter_working_duration_duration"),
     ]
 
-    operations = [
-    ]
+    operations = []
