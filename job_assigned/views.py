@@ -17,9 +17,14 @@ from rest_framework import filters
 
 
 # Create your views here.
-class Job_assigned_view(viewsets.ModelViewSet):
-    queryset = JobAssigned.objects.all()
-    # serializer_class=JobAssignedSerializer
+class JobAssignedView(viewsets.ModelViewSet):
+    def get_queryset(self):
+        user = self.request.user
+        queryset = JobAssigned.objects.select_related(
+            "job", "assigned_to", "assigned_by"
+        ).filter(assigned_by=user)
+        return queryset
+
     permission_classes = [
         permissions.IsAuthenticated,
         EmployerOnlyorReadOnly,
@@ -74,11 +79,9 @@ class ListTaskAssignedView(generics.ListAPIView):
     def get_queryset(self):
         # combine_result=list(chain(JobAssigned.objects.filter(assigned_to=self.request.user),Job.objects.filter(assigned_to=self.request.user))) # noqa
         # print(combine_result)
-        return JobAssigned.objects.select_related(
-            "job", "assigned_to", "assigned_by"
-        ).filter(
-            assigned_to=self.request.user
-        )  # noqa
+        user_obj = self.request.user
+        print(user_obj)
+        return JobAssigned.objects.filter(assigned_to__email=user_obj)  # noqa
 
     serializer_class = JobAssignedListSerializer
     filter_backends = [filters.SearchFilter]
@@ -131,7 +134,7 @@ class StartTime(APIView):
                     "working_duration_id": latest_entery_work_duration_obj.id,
                     "response": "job started",
                 }
-            )  # noqa
+            )
         return Response(
             {"response": "This job has't been assigned to you"},
             status=status.HTTP_400_BAD_REQUEST,
@@ -175,11 +178,16 @@ class EndTime(APIView):
                     }
                 )
             else:
-                return Response({"response": "You have not start working on this"})
+                return Response(
+                    {"response": "You have not start working on this"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         else:
             return Response(
-                {"response": "That job has not been assigned to you "},
+                {
+                    "response": "That job has not been assigned to you so you cannot end another's job"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -187,17 +195,20 @@ class EndTime(APIView):
 class CalculatingLastSevenDaysWorkingDuration(APIView):
     def get(self, request, pk):
 
-        job_assigned = JobAssigned.objects.get(pk=pk)
-        now = datetime.now()
-        final_result = []
-        temp_result = {}
-        for i in range(7):  # noqa
-            current_datetime = (now - timedelta(days=i)).date()
-            work_duratin_obj = WorkingDuration.objects.filter(
-                assigned_job__id=job_assigned.id, timestamp__date=current_datetime
-            ).aggregate(duration=Sum("duration"))
-            temp_result["date"] = current_datetime
-            temp_result["duration"] = work_duratin_obj["duration"]
-            temp_result_2 = temp_result.copy()
-            final_result.append(temp_result_2)
-        return Response(final_result)
+        job_assigned = JobAssigned.objects.filter(pk=pk, assigned_to=self.request.user)
+        if job_assigned.exists():
+            job_assigned = JobAssigned.objects.filter(pk=pk)
+            now = datetime.now()
+            final_result = []
+            temp_result = {}
+            for i in range(7):
+                current_datetime = (now - timedelta(days=i)).date()
+                work_duratin_obj = WorkingDuration.objects.filter(
+                    assigned_job__id=job_assigned.id, timestamp__date=current_datetime
+                ).aggregate(duration=Sum("duration"))
+                temp_result["date"] = current_datetime
+                temp_result["duration"] = work_duratin_obj["duration"]
+                temp_result_2 = temp_result.copy()
+                final_result.append(temp_result_2)
+            return Response(final_result)
+        return Response({"response": "No job has been assigned to you"}, status=status.HTTP_400_BAD_REQUEST)

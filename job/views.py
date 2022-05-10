@@ -8,6 +8,8 @@ from account.models import User
 from job.permissions import EmployerOnlyorReadOnly, OwnerOnly
 from job_assigned.models import JobAssigned
 from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 # Create your views here.
 
@@ -22,7 +24,8 @@ class JobView(viewsets.ModelViewSet):
         OwnerOnly,
         EmployerOnlyorReadOnly,
     ]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filter_fields = ['job_status']
     search_fields = ["job_name", "description"]
 
     def create(self, request, *args, **kwargs):

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from job_assigned.views import (
     EndTime,
-    Job_assigned_view,
+    JobAssignedView,
     ListTaskAssignedView,
     StartTime,
     CalculatingLastSevenDaysWorkingDuration,
@@ -10,7 +10,7 @@ from job_assigned.views import (
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register("", Job_assigned_view, basename="job")
+router.register("", JobAssignedView, basename="job")
 
 urlpatterns = [
     path("assigned-job-list/", ListTaskAssignedView.as_view()),

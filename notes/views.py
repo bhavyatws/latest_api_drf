@@ -9,7 +9,12 @@ from notes.models import Notes
 
 
 class Notesview(viewsets.ModelViewSet):
-    queryset = Notes.objects.all()
+    def get_queryset(self):
+        notes = Notes.objects.select_related('user_associated').filter(user_associated=self.request.user)
+        if notes.exists():
+            return notes
+        return None
+
     permission_classes = [permissions.IsAuthenticated, OwnerOnly]
 
     def perform_create(self, serializer):
@@ -30,9 +35,12 @@ class NotesPerJob(generics.ListAPIView):
     def get_queryset(self):
         assign_job_id = self.request.query_params.get("id")
         print(assign_job_id)
-        return Notes.objects.select_related("user_associated", "job_assigned").filter(
-            job_assigned=assign_job_id
+        notes = Notes.objects.select_related("user_associated", "job_assigned").filter(
+            job_assigned=assign_job_id, user_associated=self.request.user
         )
+        if notes.exists:
+            return notes
+        return None
 
     serializer_class = NotesListSerializer
     permission_classes = [permissions.IsAuthenticated]

@@ -68,6 +68,8 @@ MIDDLEWARE = [
     # 'silk.middleware.SilkyMiddleware',
 ]
 
+# SILKY_PYTHON_PROFILER = True
+
 ROOT_URLCONF = "employer_employee.urls"
 
 TEMPLATES = [
@@ -213,3 +215,4 @@ INTERNAL_IPS = [
 
 # silk
 # SILKY_PYTHON_PROFILER = True
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

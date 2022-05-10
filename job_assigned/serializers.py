@@ -3,6 +3,7 @@ from job_assigned.models import JobAssigned, WorkingDuration
 from account.serializers import UserListSerializerJobAssigned
 from notes.models import Notes
 from django.db.models import Sum
+from django.contrib.auth import get_user_model
 
 
 class JobAssignedSerializer(serializers.ModelSerializer):
@@ -47,8 +48,6 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
             "assign_job_status",
             "total_hours_worked_in_second",
         ]
-        # fields=['members']
-
         extra_kwargs = {
             "id": {"read_only": True},
             "assigned_by": {"read_only": True},
@@ -74,9 +73,9 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     def get_total_hours_worked(self, obj):
         work_duration_obj = (
             WorkingDuration.objects.select_related("assigned_job")
-            .filter(assigned_job__id=obj.job.id)
-            .only("duration")
+            .filter(assigned_job=obj.id)
             .aggregate(duration=Sum("duration"))
+
         )
         return work_duration_obj["duration"]
 
@@ -91,19 +90,14 @@ class JobAssignedListSerializer(serializers.ModelSerializer):
     # finding all assigned_to user to particular job
 
     def find_all_user_associated_to_particular_task(self, obj):
-
-        list = []
         job_id = obj.job.id
-        assign_job = JobAssigned.objects.select_related("job", "assigned_to").filter(
+        assign_job = JobAssigned.objects.filter(
             job=job_id
-        )
+        ).values_list("assigned_to", flat=True)
 
-        for job in assign_job:
-            if job.job == obj.job:
-                list.append(job.assigned_to)
+        users = get_user_model().objects.select_related("profile").filter(id__in=assign_job)
 
-        return UserListSerializerJobAssigned(list, many=True).data
-
+        return UserListSerializerJobAssigned(users, many=True).data
     # def get_working_duration_of_seven_days(self,obj):
     #     now = timezone.now()
     # today=Working_Duration.objects.filter(timestamp=now.date())

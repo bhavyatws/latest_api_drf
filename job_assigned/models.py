@@ -1,6 +1,7 @@
 from django.db import models
 from account.models import User
 from job.models import Job
+# from django.utils.functional import cached_property
 
 # Create your models here.
 
@@ -14,9 +15,9 @@ class JobAssigned(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.id}-{self.job.job_name} to {self.assigned_to.email}"
+        return f'{self.id}'
 
-    # @property
+    # @cached_property
     # def find_all_members(self):
     #     list=[]
     #     job_id=self.job.id
@@ -38,4 +39,4 @@ class WorkingDuration(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
-        return f"{self.id}-{self.assigned_job.job.job_name}"
+        return str(self.id)

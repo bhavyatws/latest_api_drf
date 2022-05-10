@@ -14,4 +14,4 @@ class Notes(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.notes} By {self.user_associated.email}"
+        return f"{self.id} - {self.notes} "

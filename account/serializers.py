@@ -7,7 +7,6 @@ from account.models import (
     Profile,
     Certification,
 )
-from django.forms import ValidationError
 
 # Customizing Token Response with Role also
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -57,7 +56,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
         for user_upload in UserUploadedCertificate.objects.select_related(
             "user", "cert_name"
         ).filter(
-            user__id=obj.user_associated__id
+            user__id=obj.user_associated.id
         ):  # noqa
             user_upload_list.append(user_upload.cert_name.level.name)
         return user_upload_list[::-1]
@@ -68,7 +67,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
         for user_upload in UserUploadedCertificate.objects.select_related(
             "user", "cert_name"
         ).filter(
-            user__id=obj.user_associated__id
+            user__id=obj.user_associated.id
         ):  # noqa
             user_upload_list.append(user_upload)
         return len(user_upload_list)
@@ -157,7 +156,7 @@ class UserSerializer(serializers.ModelSerializer):
         password = data.get("password")
         confirm_password = data.pop("password2")
         if password != confirm_password:
-            raise ValidationError("Two passwords must match")
+            raise serializers.ValidationError("Two passwords must match")
         return data
 
     # def get_all_assign_job(self,obj):
@@ -212,3 +211,15 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add extra responses here
         data["Role"] = self.user.role
         return data
+
+
+class InviteByEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email = attrs['email']
+        print(email)
+        user = User.objects.filter(email=email)
+        if user:
+            raise serializers.ValidationError("User with this email already exist")
+        return attrs

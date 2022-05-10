@@ -66,7 +66,7 @@ class Profile(models.Model):
     medical_issues = models.CharField(max_length=100, default="", blank=True)
 
     def __str__(self):
-        return self.user_associated.email
+        return str(self.id)
 
     # resizing uploaded image after uploaded
     # def save(self,force_insert=None):

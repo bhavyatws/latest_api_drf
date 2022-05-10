@@ -1,4 +1,9 @@
-from rest_framework import generics
+from rest_framework.generics import (
+    ListCreateAPIView,
+    ListAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+)
 from rest_framework import viewsets
 from rest_framework import permissions
 from account.serializers import (
@@ -10,6 +15,7 @@ from account.serializers import (
     ProfileListSerializer,
     FAQSerializer,
     MyTokenObtainPairSerializer,
+    InviteByEmailSerializer,
 )
 from account.models import (
     Level,
@@ -19,7 +25,7 @@ from account.models import (
     UserUploadedCertificate,
     FAQ,
 )
-from job.permissions import OwnerOnly
+from job.permissions import OwnerOnly, EmployerOnlyorReadOnly
 from rest_framework_simplejwt.views import TokenObtainPairView  # customizing Token
 from rest_framework import filters
 from rest_framework.views import APIView
@@ -27,11 +33,14 @@ from job_assigned.models import WorkingDuration
 from datetime import datetime, timedelta
 from rest_framework.response import Response
 from django.db.models import Sum
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+
 
 # Create your views here.
 
 
-class UserView(generics.ListCreateAPIView):
+class UserView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
@@ -44,12 +53,38 @@ class UserView(generics.ListCreateAPIView):
         instance.save()
 
 
-class Levelview(generics.ListAPIView):
+class InviteByEmailView(CreateAPIView):
+    serializer_class = InviteByEmailSerializer
+
+    def perform_create(self, serializer):
+
+        bonded_data = serializer["email"]
+        print(bonded_data)
+        email = bonded_data.value
+        print(email)
+        user = User.objects.create(email=email)
+        user.save()
+
+        password = get_random_string(length=10)
+        print(password)
+        user.set_password(password)
+        user.save()
+        message = f"email-{email} and password-{password} You can login using these credentials and later you can update"  # noqa
+        send_mail(
+            "Invitation for using app",
+            message,
+            "admin@gmail.com",
+            [str(email)],
+            fail_silently=False,
+        )
+
+
+class Levelview(ListAPIView):
     queryset = Level.objects.all()
     serializer_class = LevelSerializer
 
 
-class Certificationview(generics.ListAPIView):
+class Certificationview(ListAPIView):
     queryset = Certification.objects.all()
     serializer_class = CertificateSerializer
 
@@ -67,7 +102,7 @@ class UserUploadedCertificateview(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class ProfileListView(generics.ListAPIView):
+class ProfileListView(ListAPIView):
     def get_queryset(self):
         return Profile.objects.select_related("user_associated").filter(
             user_associated=self.request.user
@@ -77,7 +112,7 @@ class ProfileListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, OwnerOnly]
 
 
-class Profileview(generics.UpdateAPIView):
+class Profileview(UpdateAPIView):
     def get_queryset(self):
         pk = self.kwargs.get("pk")
         return Profile.objects.select_related("user_associated").filter(pk=pk)
@@ -87,6 +122,10 @@ class Profileview(generics.UpdateAPIView):
 
 
 class WorkingDurationPerEmployee(APIView):
+    permission_classes = [
+        EmployerOnlyorReadOnly,
+    ]
+
     def get(self, request, pk):
         now = datetime.now()
         user_obj = User.objects.get(pk=pk)
@@ -113,7 +152,7 @@ class WorkingDurationPerEmployee(APIView):
         return Response(final_result)
 
 
-class FAQView(generics.ListAPIView):
+class FAQView(ListAPIView):
     queryset = FAQ.objects.all()
     serializer_class = FAQSerializer
 

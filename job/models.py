@@ -24,4 +24,4 @@ class Job(models.Model):
         ordering = ("timestamp",)
 
     def __str__(self):
-        return f"{self.id}-{self.job_name} By {self.user_associated.email}"
+        return f"{self.id}-{self.job_name} "
