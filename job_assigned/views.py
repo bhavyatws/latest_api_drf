@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework import generics
 from job_assigned.models import JobAssigned, WorkingDuration
 from job_assigned.serializers import JobAssignedSerializer, JobAssignedListSerializer
-from job.permissions import EmployerOnlyorReadOnly
+from job.permissions import EmployerOnly
 from job_assigned.permissions import OwnerOnly
 from itertools import chain  # noqa
 from rest_framework.response import Response
@@ -14,6 +14,7 @@ import pytz
 from datetime import timedelta, datetime
 from django.db.models import Sum
 from rest_framework import filters
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
@@ -27,7 +28,7 @@ class JobAssignedView(viewsets.ModelViewSet):
 
     permission_classes = [
         permissions.IsAuthenticated,
-        EmployerOnlyorReadOnly,
+        EmployerOnly,
         OwnerOnly,
     ]
     # first way
@@ -56,6 +57,13 @@ class JobAssignedView(viewsets.ModelViewSet):
         user_obj = User.objects.filter(id=user_id)
         if user_obj.exists:
             user_obj = User.objects.get(id=user_id)
+            if user_obj.employer != self.request.user.email:
+                return Response(
+                    {
+                        "response": "You are not employer of this employee so you cannot assign job"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             if user_obj == self.request.user:
                 return Response(
                     {"response": "you are trying  assign your job to yourself "},
@@ -109,7 +117,11 @@ class StartTime(APIView):
         # pk=self.kwargs.get('id')
         data = request.data
         pk = data["id"]
-        if JobAssigned.objects.filter(pk=pk, assigned_to=self.request.user).exists():
+        if (
+            JobAssigned.objects.select_related("job", "assigned_to", "assigned_by")
+            .filter(pk=pk, assigned_to=self.request.user)
+            .exists()
+        ):
             job_assign_obj = JobAssigned.objects.get(pk=pk)
             now = datetime.now(pytz.timezone("Asia/Kolkata"))
             # checking if anyother assigned job he has started timer
@@ -151,7 +163,9 @@ class EndTime(APIView):
         pk = data["id"]
         if JobAssigned.objects.filter(pk=pk).exists():
             job_assign_obj = JobAssigned.objects.get(pk=pk)
-            queries_workduration = WorkingDuration.objects.filter(
+            queries_workduration = WorkingDuration.objects.select_related(
+                "assigned_job"
+            ).filter(
                 assigned_job__id=job_assign_obj.id,
                 assigned_job__assigned_to=self.request.user,
                 end_time=None,
@@ -193,22 +207,36 @@ class EndTime(APIView):
 
 
 class CalculatingLastSevenDaysWorkingDuration(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, pk):
 
-        job_assigned = JobAssigned.objects.filter(pk=pk, assigned_to=self.request.user)
+        job_assigned = JobAssigned.objects.select_related(
+            "job", "assigned_to", "assigned_by"
+        ).filter(pk=pk, assigned_to=self.request.user)
         if job_assigned.exists():
-            job_assigned = JobAssigned.objects.filter(pk=pk)
+            job_assigned = JobAssigned.objects.select_related(
+                "job", "assigned_to", "assigned_by"
+            ).get(pk=pk)
             now = datetime.now()
             final_result = []
             temp_result = {}
             for i in range(7):
                 current_datetime = (now - timedelta(days=i)).date()
-                work_duratin_obj = WorkingDuration.objects.filter(
-                    assigned_job__id=job_assigned.id, timestamp__date=current_datetime
-                ).aggregate(duration=Sum("duration"))
+                work_duratin_obj = (
+                    WorkingDuration.objects.select_related("assigned_job")
+                    .filter(
+                        assigned_job__id=job_assigned.id,
+                        timestamp__date=current_datetime,
+                    )
+                    .aggregate(duration=Sum("duration"))
+                )
                 temp_result["date"] = current_datetime
                 temp_result["duration"] = work_duratin_obj["duration"]
                 temp_result_2 = temp_result.copy()
                 final_result.append(temp_result_2)
             return Response(final_result)
-        return Response({"response": "No job has been assigned to you"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"response": "This job has been assigned to you"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

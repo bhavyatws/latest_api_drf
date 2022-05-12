@@ -10,6 +10,13 @@ class NotesSerializer(serializers.ModelSerializer):
         fields = ["job_assigned", "notes", "user_associated"]
         extra_kwargs = {"user_associated": {"read_only": True}}
 
+    def validate(self, attrs):
+        currently_authenticated_user = self.context['request'].user
+        job_assinged_obj = attrs['job_assigned']
+        if not job_assinged_obj.assigned_to == currently_authenticated_user:
+            raise serializers.ValidationError("You are not allowed to comment on other's job")
+        return attrs
+
 
 class NotesListSerializer(serializers.ModelSerializer):
     # user_associated=UserSerializer()

@@ -6,9 +6,10 @@ from account.views import (
     Certificationview,
     Profileview,
     FAQView,
-    ProfileListView,
+    ProfileView,
     WorkingDurationPerEmployee,
     InviteByEmailView,
+    ShowAllEmployeeOfEmployer
 )
 from rest_framework.routers import DefaultRouter
 
@@ -20,8 +21,9 @@ router.register(
 urlpatterns = [
     path("user/", UserView.as_view()),
     path("invite-by-email/", InviteByEmailView.as_view()),
+    path("show-all-employee-of-employer/", ShowAllEmployeeOfEmployer.as_view()),
     path("level/", Levelview.as_view()),
-    path("profile/", ProfileListView.as_view()),
+    path("profile/", ProfileView.as_view()),
     path("profile/<int:pk>/", Profileview.as_view()),
     path("faq/", FAQView.as_view()),
     path("certification/", Certificationview.as_view()),

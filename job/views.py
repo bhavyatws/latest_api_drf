@@ -5,7 +5,7 @@ from rest_framework import permissions
 from job.serializers import JobSerializer
 from job.models import Job
 from account.models import User
-from job.permissions import EmployerOnlyorReadOnly, OwnerOnly
+from job.permissions import EmployerOnly, OwnerOnly
 from job_assigned.models import JobAssigned
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -22,7 +22,7 @@ class JobView(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated,
         OwnerOnly,
-        EmployerOnlyorReadOnly,
+        EmployerOnly,
     ]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filter_fields = ['job_status']
@@ -50,12 +50,13 @@ class JobView(viewsets.ModelViewSet):
                 print(member_id)
                 if User.objects.filter(id=member_id).exists():
                     user_id = User.objects.get(id=member_id)
-                    job_assigned = JobAssigned(
-                        assigned_to=user_id,
-                        job=latest_job_id,
-                        assigned_by=self.request.user,
-                    )
-                    job_assigned.save()
+                    if user_id.employer == self.request.user.email:
+                        job_assigned = JobAssigned(
+                            assigned_to=user_id,
+                            job=latest_job_id,
+                            assigned_by=self.request.user,
+                        )
+                        job_assigned.save()
                 else:
                     pass
 

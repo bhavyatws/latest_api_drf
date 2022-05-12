@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class EmployerOnlyorReadOnly(permissions.BasePermission):
+class EmployerOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         # if view.action == 'list':

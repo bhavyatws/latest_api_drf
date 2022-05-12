@@ -33,13 +33,21 @@ class UserUploadedCertificateSerializer(serializers.ModelSerializer):
         extra_kwargs = {"user": {"read_only": True}}
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email"]
+
+
 class ProfileListSerializer(serializers.ModelSerializer):
     level = serializers.SerializerMethodField("get_level")
     total_certificates = serializers.SerializerMethodField("get_total_no_certificate")
+    user_associated = UserProfileSerializer()
 
     class Meta:
         model = Profile
         fields = [
+            "user_associated",
             "profile_image",
             "user_associated",
             "designation",
@@ -49,28 +57,25 @@ class ProfileListSerializer(serializers.ModelSerializer):
             "medical_issues",
             "level",
             "total_certificates",
-        ]  # noqa
+        ]
 
     def get_level(self, obj):
-        user_upload_list = []
-        for user_upload in UserUploadedCertificate.objects.select_related(
-            "user", "cert_name"
-        ).filter(
-            user__id=obj.user_associated.id
-        ):  # noqa
-            user_upload_list.append(user_upload.cert_name.level.name)
-        return user_upload_list[::-1]
-        # return UserUploadedCertificateSerializer(level_list,many=True).data
+
+        level = (
+            UserUploadedCertificate.objects.select_related("user", "cert_name")
+            .filter(user__id=obj.user_associated.id)
+            .last()
+        )
+
+        return UserUploadedCertificateSerializer(level).data
 
     def get_total_no_certificate(self, obj):
-        user_upload_list = []
-        for user_upload in UserUploadedCertificate.objects.select_related(
-            "user", "cert_name"
-        ).filter(
-            user__id=obj.user_associated.id
-        ):  # noqa
-            user_upload_list.append(user_upload)
-        return len(user_upload_list)
+
+        return (
+            UserUploadedCertificate.objects.select_related("user", "cert_name")
+            .filter(user__id=obj.user_associated.id)
+            .count()
+        )
 
 
 class ProfileListSerializerJobAssigned(serializers.ModelSerializer):
@@ -99,25 +104,20 @@ class ProfileListUserSerializer(serializers.ModelSerializer):
         ]  # noqa
 
     def get_level(self, obj):
-        user_upload_list = []
-        for user_upload in UserUploadedCertificate.objects.select_related(
-            "user", "cert_name"
-        ).filter(
-            user__id=obj.user_associated.id
-        ):  # noqa
-            user_upload_list.append(user_upload.cert_name.level.name)
-        return user_upload_list[::-1]
-        # return UserUploadedCertificateSerializer(level_list,many=True).data
+        level = (
+            UserUploadedCertificate.objects.select_related("user", "cert_name")
+            .filter(user__id=obj.user_associated.id)
+            .last()
+        )
+        return UserUploadedCertificateSerializer(level).data
 
     def get_total_no_certificate(self, obj):
-        user_upload_list = []
-        for user_upload in UserUploadedCertificate.objects.select_related(
-            "user", "cert_name"
-        ).filter(
-            user__id=obj.user_associated.id
-        ):  # noqa
-            user_upload_list.append(user_upload)
-        return len(user_upload_list)
+
+        return (
+            UserUploadedCertificate.objects.select_related("user", "cert_name")
+            .filter(user__id=obj.user_associated.id)
+            .count()
+        )
 
 
 class UserListSerializerJobAssigned(serializers.ModelSerializer):
@@ -158,14 +158,6 @@ class UserSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise serializers.ValidationError("Two passwords must match")
         return data
-
-    # def get_all_assign_job(self,obj):
-    #     job_list=[]
-    #     job_assigneds=JobAssigned.objects.filter(assigned_to=obj)
-    #     for job_assigned in job_assigneds:
-    #         if job_assigned.assigned_to==self.request.user:
-    #             job_list.append(job_assigned.job)
-    #         return UserAssignedJobSerializer(job_list,many=True).data
 
 
 class NotesUserSerializer(serializers.ModelSerializer):
@@ -217,7 +209,7 @@ class InviteByEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate(self, attrs):
-        email = attrs['email']
+        email = attrs["email"]
         print(email)
         user = User.objects.filter(email=email)
         if user:

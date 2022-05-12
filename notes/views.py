@@ -5,15 +5,23 @@ from notes.serializers import NotesSerializer, NotesListSerializer
 from job.permissions import OwnerOnly
 from notes.models import Notes
 
+
+# from rest_framework import status
+# from rest_framework.response import Response
+
 # Create your views here.
 
 
 class Notesview(viewsets.ModelViewSet):
     def get_queryset(self):
-        notes = Notes.objects.select_related('user_associated').filter(user_associated=self.request.user)
+        notes = Notes.objects.select_related("user_associated").filter(
+            user_associated=self.request.user
+        )
         if notes.exists():
             return notes
-        return None
+        else:
+            print("yes")
+            return None
 
     permission_classes = [permissions.IsAuthenticated, OwnerOnly]
 
@@ -40,7 +48,7 @@ class NotesPerJob(generics.ListAPIView):
         )
         if notes.exists:
             return notes
-        return None
+        return 404
 
     serializer_class = NotesListSerializer
     permission_classes = [permissions.IsAuthenticated]

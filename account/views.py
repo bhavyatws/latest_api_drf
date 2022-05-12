@@ -25,7 +25,8 @@ from account.models import (
     UserUploadedCertificate,
     FAQ,
 )
-from job.permissions import OwnerOnly, EmployerOnlyorReadOnly
+from rest_framework.permissions import IsAuthenticated
+from job.permissions import OwnerOnly, EmployerOnly
 from rest_framework_simplejwt.views import TokenObtainPairView  # customizing Token
 from rest_framework import filters
 from rest_framework.views import APIView
@@ -45,6 +46,7 @@ class UserView(ListCreateAPIView):
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["email"]
+    permission_classes = [EmployerOnly]
 
     def perform_create(self, serializer):
         instance = serializer.save()
@@ -54,6 +56,7 @@ class UserView(ListCreateAPIView):
 
 
 class InviteByEmailView(CreateAPIView):
+    permission_classes = [EmployerOnly, ]
     serializer_class = InviteByEmailSerializer
 
     def perform_create(self, serializer):
@@ -62,7 +65,7 @@ class InviteByEmailView(CreateAPIView):
         print(bonded_data)
         email = bonded_data.value
         print(email)
-        user = User.objects.create(email=email)
+        user = User.objects.create(email=email, employer=self.request.user.email)
         user.save()
 
         password = get_random_string(length=10)
@@ -79,12 +82,22 @@ class InviteByEmailView(CreateAPIView):
         )
 
 
+class ShowAllEmployeeOfEmployer(ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [EmployerOnly, OwnerOnly]
+
+    def get_queryset(self):
+        return User.objects.filter(employer=self.request.user.email)
+
+
 class Levelview(ListAPIView):
+    permission_classes = [IsAuthenticated, ]
     queryset = Level.objects.all()
     serializer_class = LevelSerializer
 
 
 class Certificationview(ListAPIView):
+    permission_classes = [IsAuthenticated, ]
     queryset = Certification.objects.all()
     serializer_class = CertificateSerializer
 
@@ -102,7 +115,7 @@ class UserUploadedCertificateview(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class ProfileListView(ListAPIView):
+class ProfileView(ListAPIView):
     def get_queryset(self):
         return Profile.objects.select_related("user_associated").filter(
             user_associated=self.request.user
@@ -123,7 +136,7 @@ class Profileview(UpdateAPIView):
 
 class WorkingDurationPerEmployee(APIView):
     permission_classes = [
-        EmployerOnlyorReadOnly,
+        EmployerOnly,
     ]
 
     def get(self, request, pk):

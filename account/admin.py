@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ("email", "is_staff", "is_active", "role")
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Permissions", {"fields": ("is_staff", "is_active", "role")}),
+        ("Permissions", {"fields": ("is_staff", "is_active", "employer", "role")}),
     )
     add_fieldsets = (
         (
