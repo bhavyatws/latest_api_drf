@@ -65,7 +65,7 @@ class InviteByEmailView(CreateAPIView):
         print(bonded_data)
         email = bonded_data.value
         print(email)
-        user = User.objects.create(email=email, employer=self.request.user.email)
+        user = User.objects.create(email=email, employer=self.request.user)
         user.save()
 
         password = get_random_string(length=10)
@@ -87,7 +87,7 @@ class ShowAllEmployeeOfEmployer(ListAPIView):
     permission_classes = [EmployerOnly, OwnerOnly]
 
     def get_queryset(self):
-        return User.objects.filter(employer=self.request.user.email)
+        return User.objects.filter(employer=self.request.user)
 
 
 class Levelview(ListAPIView):

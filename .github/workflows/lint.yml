@@ -6,9 +6,13 @@ on:
   push:
     branches:
       - lint_action_flake
+      - master
+      - main
   pull_request:
     branches:
       - main
+      - master
+  
 
 jobs:
   run-linters:
