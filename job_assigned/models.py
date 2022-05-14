@@ -12,6 +12,7 @@ class JobAssigned(models.Model):
         User, on_delete=models.CASCADE, related_name="assigned_to"
     )
     job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True)
+    assigned_status = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

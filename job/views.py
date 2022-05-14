@@ -2,20 +2,25 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework import permissions
-from job.serializers import JobSerializer
+from job.serializers import JobSerializer, JobDetailSerializer
 from job.models import Job
 from account.models import User
 from job.permissions import EmployerOnly, OwnerOnly
-from job_assigned.models import JobAssigned
+from job_assigned.models import JobAssigned, WorkingDuration
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.views import APIView
+from datetime import datetime, timedelta
 
 # Create your views here.
 
 
 class JobView(viewsets.ModelViewSet):
     def get_queryset(self):
+        """
+        All job created by logged in employer
+        """
         return Job.objects.filter(user_associated=self.request.user)
 
     serializer_class = JobSerializer
@@ -25,7 +30,7 @@ class JobView(viewsets.ModelViewSet):
         EmployerOnly,
     ]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    filter_fields = ['job_status']
+    filter_fields = ["job_status"]
     search_fields = ["job_name", "description"]
 
     def create(self, request, *args, **kwargs):
@@ -67,3 +72,58 @@ class JobView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user_associated=self.request.user)
+
+
+class JobDetailView(RetrieveAPIView):
+    def get_queryset(self):
+        return Job.objects.filter(user_associated=self.request.user)
+
+    serializer_class = JobDetailSerializer
+    permission_classes = [EmployerOnly, OwnerOnly]
+
+
+class CalculateLastSevenDayWorkingHoursPerJob(APIView):
+    def get(self, request, job_id):
+        print(job_id)
+        current_datetime = datetime.now()
+        current_datetime = current_datetime - timedelta(days=1)
+        # working_obj=WorkingDuration.objects.filter(assigned_job__job__id=job_id).aggregate(sum=Sum('duration'))
+
+        inttial_duration = timedelta(0, 0, 0)
+
+        # # print(current_datetime)
+        date_list = []
+        last_seven_days_dict = []
+        temporay_days_duration_dict = {}
+        for i in range(7):
+            days = current_datetime - timedelta(days=i)
+            date = days.date()
+            print(date)
+            date_list.append(date)
+        working_obj = WorkingDuration.objects.filter(assigned_job__job__id=job_id)
+
+        for date in date_list:
+            for assigned_job in working_obj:
+                # print(assigned_job)
+                assigned_date = assigned_job.timestamp.date()
+                if assigned_date == date:
+                    inttial_duration += assigned_job.duration
+                    print("ddd", assigned_date)
+                    print(inttial_duration)
+                    temporay_days_duration_dict = {
+                        "date": date,
+                        "duration": inttial_duration,
+                    }
+                    temp2 = {}
+                    temp2 = temporay_days_duration_dict.copy()
+
+                else:
+
+                    temporay_days_duration_dict = {"date": date, "duration": 0}
+                    temp2 = {}
+                    temp2 = temporay_days_duration_dict.copy()
+
+            last_seven_days_dict.append(temp2)
+        print(last_seven_days_dict)
+
+        return Response(last_seven_days_dict)
