@@ -23,7 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "employer_employee.settings.development"
 )
-
 application = get_wsgi_application()
 
 # application = WhiteNoise(application)
