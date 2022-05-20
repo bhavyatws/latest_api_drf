@@ -15,17 +15,19 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_simplejwt import views as jwt_views
 from account.views import MyTokenObtainPairView  # Customized TokenObtainer
-
+from rest_framework_swagger.views import get_swagger_view
+schema_view = get_swagger_view(title='Pastebin API')
 # from employer_employee.settings.production import DEBUG404
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    re_path(r'^$', schema_view),
     # django debug toolbar
     path("__debug__/", include("debug_toolbar.urls")),
     # silk (like debug toolbar this tool )

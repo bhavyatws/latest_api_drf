@@ -124,7 +124,7 @@ class CalculateLastSevenDayWorkingHoursPerJob(APIView):
                     temp2 = {}
                     temp2 = temporay_days_duration_dict.copy()
 
-            last_seven_days_dict.append(temp2)
+                last_seven_days_dict.append(temp2)
         print(last_seven_days_dict)
 
         return Response(last_seven_days_dict)

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework_swagger",  # this is for api documentation
     "debug_toolbar",  # django toolbar
     "rest_framework",
     "account",
@@ -84,6 +85,11 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            # this library is for api-documentation i.e swagger
+            'libraries': {
+                'staticfiles': 'django.templatetags.static',
+            }
+
         },
     },
 ]
@@ -216,3 +222,5 @@ INTERNAL_IPS = [
 # silk
 # SILKY_PYTHON_PROFILER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# its for api documentation
+REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'}
