@@ -83,6 +83,7 @@ class JobDetailView(RetrieveAPIView):
 
 
 class CalculateLastSevenDayWorkingHoursPerJob(APIView):
+    """Caclulating LastSevenDaysWorkingHoursPerJob usng job id"""
     def get(self, request, job_id):
         print(job_id)
         current_datetime = datetime.now()
