@@ -27,7 +27,7 @@ schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    re_path(r'^$', schema_view),
+    re_path(r'^$', schema_view, name='all_allowed'),
     # django debug toolbar
     path("__debug__/", include("debug_toolbar.urls")),
     # silk (like debug toolbar this tool )
